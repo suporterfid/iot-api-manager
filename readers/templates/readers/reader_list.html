@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Readers</h2>
+    <a href="{% url 'reader_create' %}" class="btn btn-primary mb-3">Add Reader</a>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover">
+            <thead class="thead-light">
+                <tr>
+                    <th>Name</th>
+                    <th>Serial Number</th>
+                    <th>IP Address</th>
+                    <th>Port</th>
+                    <th>Preset ID</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for reader in readers %}
+                <tr>
+                    <td>{{ reader.name }}</td>
+                    <td>{{ reader.serial_number }}</td>
+                    <td>{{ reader.ip_address }}</td>
+                    <td>{{ reader.port }}</td>
+                    <td>{{ reader.preset_id|default:"default" }}</td>
+                    <td>
+                        <a href="{% url 'reader_update' reader.pk %}" class="btn btn-warning btn-sm">Edit</a>
+                        <a href="{% url 'reader_delete' reader.pk %}" class="btn btn-danger btn-sm">Delete</a>
+                        <button onclick="startPreset({{ reader.pk }})" class="btn btn-success btn-sm">Start Preset</button>
+                        <button onclick="stopPreset({{ reader.pk }})" class="btn btn-secondary btn-sm">Stop Preset</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+function startPreset(pk) {
+    fetch(`/start-preset/${pk}/`)
+        .then(response => response.json())
+        .then(data => alert('Preset started'));
+}
+
+function stopPreset(pk) {
+    fetch(`/stop-preset/${pk}/`)
+        .then(response => response.json())
+        .then(data => alert('Preset stopped'));
+}
+</script>
+{% endblock %}

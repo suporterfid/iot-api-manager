@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Tag Events</h2>
+    <form method="get" class="form-inline mb-3">
+        <select name="reader" class="form-control mr-2">
+            <option value="">Select Reader</option>
+            {% for reader in readers %}
+            <option value="{{ reader.pk }}" {% if request.GET.reader == reader.pk|stringformat:"s" %}selected{% endif %}>{{ reader.name }}</option>
+            {% endfor %}
+        </select>
+        <input type="date" name="start_date" class="form-control mr-2" value="{{ request.GET.start_date }}">
+        <input type="date" name="end_date" class="form-control mr-2" value="{{ request.GET.end_date }}">
+        <button type="submit" class="btn btn-primary">Filter</button>
+    </form>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover">
+            <thead class="thead-light">
+                <tr>
+                    {% for column, display_name in columns.items %}
+                    <th scope="col">
+                        <a href="?{% if request.GET.reader %}reader={{ request.GET.reader }}&{% endif %}{% if request.GET.start_date %}start_date={{ request.GET.start_date }}&{% endif %}{% if request.GET.end_date %}end_date={{ request.GET.end_date }}&{% endif %}sort={{ column }}&direction={% if sort == column and direction == 'asc' %}desc{% else %}asc{% endif %}">
+                            {{ display_name }}
+                            {% if sort == column %}
+                                {% if direction == 'asc' %}
+                                    &#9650;
+                                {% else %}
+                                    &#9660;
+                                {% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+                    {% endfor %}
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            
+            <tbody>
+                {% for tag in tags %}
+                <tr>
+                    <td>{{ tag.reader.name }}</td>
+                    <td>{{ tag.epc }}</td>
+                    <td>{{ tag.timestamp }}</td>
+                    <td>
+                        <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#detailsModal" onclick="loadDetails({{ tag.id }})">Details</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination controls -->
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1{% if request.GET.reader %}&reader={{ request.GET.reader }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}" aria-label="First">
+                    <span aria-hidden="true">&laquo;&laquo;</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.reader %}&reader={{ request.GET.reader }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">&laquo;&laquo;</span>
+            </li>
+            <li class="page-item disabled">
+                <span class="page-link">&laquo;</span>
+            </li>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <li class="page-item"><a class="page-link" href="?page={{ num }}{% if request.GET.reader %}&reader={{ request.GET.reader }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}">{{ num }}</a></li>
+            {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.reader %}&reader={{ request.GET.reader }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.reader %}&reader={{ request.GET.reader }}{% endif %}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}" aria-label="Last">
+                    <span aria-hidden="true">&raquo;&raquo;</span>
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">&raquo;</span>
+            </li>
+            <li class="page-item disabled">
+                <span class="page-link">&raquo;&raquo;</span>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+
+<!-- Modal for displaying details -->
+<div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="detailsModalLabel">Tag Event Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="modalBody">
+        <!-- Details will be dynamically loaded here -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function loadDetails(eventId) {
+    fetch(`/tag-event/${eventId}/details/`)
+        .then(response => response.json())
+        .then(data => {
+            let modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <p><strong>EPC:</strong> ${data.epc}</p>
+                <p><strong>Timestamp:</strong> ${data.timestamp}</p>
+                <p><strong>Antenna Port:</strong> ${data.antenna_port || 'N/A'}</p>
+                <p><strong>Peak RSSI (cdbm):</strong> ${data.peak_rssi_cdbm || 'N/A'}</p>
+                <p><strong>Frequency:</strong> ${data.frequency || 'N/A'}</p>
+                <p><strong>Transmit Power (cdbm):</strong> ${data.transmit_power_cdbm || 'N/A'}</p>
+                <p><strong>Last Seen Time:</strong> ${data.last_seen_time || 'N/A'}</p>
+                <p><strong>TID:</strong> ${data.tid || 'N/A'}</p>
+                <p><strong>TID (Hex):</strong> ${data.tid_hex || 'N/A'}</p>
+            `;
+        })
+        .catch(error => console.error('Error loading details:', error));
+}
+</script>
+{% endblock %}
