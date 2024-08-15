@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center">Dashboard</h1>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card text-white bg-info mb-3">
+                <div class="card-header">Inactive Readers</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ inactive_readers_count }}</h5>
+                    <p class="card-text">Readers that have not sent events in the last 3 hours.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card text-white bg-secondary mb-3">
+                <div class="card-header">Tag Events Last Hour</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ tag_events_last_hour }}</h5>
+                    <p class="card-text">Total number of tag events received in the last hour.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

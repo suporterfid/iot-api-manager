@@ -1,9 +1,10 @@
 from django.urls import path
 from . import views
-from .views import reader_list, reader_create, reader_update, reader_delete, start_preset, stop_preset, webhook_receiver, tag_event_list
+from .views import dashboard, reader_list, reader_create, reader_update, reader_delete, start_preset, stop_preset, webhook_receiver, tag_event_list, export_tag_events
 
 urlpatterns = [
-    path('', reader_list, name='reader_list'),
+    path('', dashboard, name='dashboard'),
+    path('readers/', reader_list, name='reader_list'),
     path('create/', reader_create, name='reader_create'),
     path('update/<int:pk>/', reader_update, name='reader_update'),
     path('delete/<int:pk>/', reader_delete, name='reader_delete'),
@@ -12,4 +13,6 @@ urlpatterns = [
     path('webhook/', webhook_receiver, name='webhook_receiver'),
     path('tags/', tag_event_list, name='tag_event_list'),
     path('tag-event/<int:event_id>/details/', views.tag_event_details, name='tag_event_details'),
+    path('tags/export/', export_tag_events, name='export_tag_events'),
+    
 ]

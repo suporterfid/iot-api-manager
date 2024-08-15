@@ -1,10 +1,14 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
-from django.db.models import Q
+from django.db.models import Q, Count
+from django.utils import timezone
+from datetime import timedelta
 from .models import Reader, TagEvent
 from .forms import ReaderForm
 from django.http import JsonResponse
+from django.http import HttpResponse
+import csv
 import requests
 import json
 import base64
@@ -225,3 +229,57 @@ def tag_event_details(request, event_id):
         return JsonResponse(data)
     except TagEvent.DoesNotExist:
         return JsonResponse({'error': 'Tag event not found'}, status=404)
+
+def export_tag_events(request):
+    # Filtering logic (same as in the list view)
+    tags = TagEvent.objects.all()
+    reader_id = request.GET.get('reader')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    
+    if reader_id:
+        tags = tags.filter(reader__id=reader_id)
+    if start_date:
+        tags = tags.filter(timestamp__gte=start_date)
+    if end_date:
+        tags = tags.filter(timestamp__lte=end_date)
+    
+    # Sorting logic (same as in the list view)
+    sort = request.GET.get('sort', 'timestamp')
+    direction = request.GET.get('direction', 'desc')
+    if direction == 'asc':
+        tags = tags.order_by(sort)
+    else:
+        tags = tags.order_by(f'-{sort}')
+    
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="tag_events.csv"'
+    
+    writer = csv.writer(response)
+    writer.writerow(['Reader', 'EPC', 'Timestamp'])
+    
+    for tag in tags:
+        writer.writerow([tag.reader.name, tag.epc, tag.timestamp])
+    
+    return response
+
+def dashboard(request):
+    # Calculate time ranges
+    now = timezone.now()
+    three_hours_ago = now - timedelta(hours=3)
+    one_hour_ago = now - timedelta(hours=1)
+
+    # Get the count of readers that have not sent events in the last 3 hours
+    readers_with_recent_events = TagEvent.objects.filter(timestamp__gte=three_hours_ago).values('reader').distinct()
+    inactive_readers_count = Reader.objects.exclude(id__in=readers_with_recent_events).count()
+
+    # Get the count of tag events received in the last hour
+    tag_events_last_hour = TagEvent.objects.filter(timestamp__gte=one_hour_ago).count()
+
+    context = {
+        'inactive_readers_count': inactive_readers_count,
+        'tag_events_last_hour': tag_events_last_hour,
+    }
+    
+    return render(request, 'readers/dashboard.html', context)
