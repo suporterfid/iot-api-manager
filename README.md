@@ -1,6 +1,6 @@
 # Django RFID Reader Management and Tag Event Application
 
-This Django application is designed to manage R700 RFID readers and process tag events received from those readers. The application provides a user interface (UI) to create, list, update, and delete records for R700 RFID readers. It also allows the user to start and stop inventory presets on the readers and handles incoming tag events via webhooks.
+This Django application is designed to manage R700 RFID readers and process tag events received from those readers. The application provides a user interface (UI) to create, list, update, and delete records for R700 RFID readers. It also allows the user to start and stop inventory presets on the readers and handles incoming tag events via webhooks. This software was not developed with the intention of being used in production environments; it is only an example of how to communicate with reader APIs and receive events.
 
 ## Features
 
