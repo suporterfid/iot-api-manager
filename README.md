@@ -28,8 +28,8 @@ This Django application is designed to manage R700 RFID readers and process tag 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/your-repository-name.git
-cd your-repository-name
+git clone https://github.com/suporterfid/iot-api-manager.git
+cd iot-api-manager
 ```
 
 ### 2. Environment Configuration
