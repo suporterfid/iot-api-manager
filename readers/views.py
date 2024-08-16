@@ -8,6 +8,7 @@ from .models import Reader, TagEvent
 from .forms import ReaderForm
 from django.http import JsonResponse
 from django.http import HttpResponse
+from .tasks import process_webhook_data
 import csv
 import requests
 import json
@@ -68,15 +69,12 @@ def stop_preset(request, pk):
 
 @csrf_exempt
 def webhook_receiver(request):
-    # Print the HTTP method (GET, POST, etc.)
+    # Print the HTTP method and full request headers and body for debugging purposes
     print(f"Method: {request.method}")
-
-    # Print the full request headers
     print("Headers:")
     for header, value in request.headers.items():
         print(f"{header}: {value}")
     
-    # Print the full request body
     try:
         print("Body:")
         print(request.body.decode('utf-8'))
@@ -92,72 +90,12 @@ def webhook_receiver(request):
         # Handle empty JSON array as a keepalive
         if isinstance(data, list) and not data:
             return JsonResponse({'status': 'keepalive'}, status=204)
+
+        # Enqueue the data for processing
+        process_webhook_data.delay(data)
         
-        for event in data:
-            if event.get('eventType') == 'tagInventory':
-                tag_inventory = event.get('tagInventoryEvent')
-                if tag_inventory:
-                    # Determine the reader based on hostname if provided
-                    reader = None
-                    hostname = event.get('hostname')
-                    if hostname:
-                        try:
-                            reader = Reader.objects.get(name=hostname)
-                        except Reader.DoesNotExist:
-                            return JsonResponse({'status': 'error', 'message': f'Reader with hostname {hostname} not found'}, status=404)
-
-                    # Handle EPC, checking for either Base64 or Hex format
-                    epc_hex = None
-                    epc_base64 = tag_inventory.get('epc')
-                    if epc_base64:
-                        epc_hex = base64.b64decode(epc_base64).hex().upper()
-                    else:
-                        epc_hex = tag_inventory.get('epcHex')
-
-                    if epc_hex:
-                        timestamp = event.get('timestamp')
-
-                        # Parse optional fields
-                        antenna_port = tag_inventory.get('antennaPort')
-                        antenna_name = tag_inventory.get('antennaName')
-                        peak_rssi_cdbm = tag_inventory.get('peakRssiCdbm')
-                        frequency = tag_inventory.get('frequency')
-                        transmit_power_cdbm = tag_inventory.get('transmitPowerCdbm')
-                        last_seen_time_str = tag_inventory.get('lastSeenTime')
-                        tid_base64 = tag_inventory.get('tid')
-                        tid_hex = tag_inventory.get('tidHex')
-
-                        # Convert last seen time to datetime object if present
-                        last_seen_time = None
-                        if last_seen_time_str:
-                            try:
-                                last_seen_time = datetime.fromisoformat(last_seen_time_str.replace('Z', '+00:00'))
-                            except ValueError:
-                                return JsonResponse({'status': 'error', 'message': 'Invalid lastSeenTime format'}, status=400)
-
-                        # Decode tid from base64 if provided
-                        if tid_base64 and not tid_hex:
-                            tid_hex = base64.b64decode(tid_base64).hex().upper()
-
-                        # If reader was not found by hostname, use a default or fallback method
-                        if reader is None:
-                            reader, created = Reader.objects.get_or_create(serial_number='default-serial-number', defaults={'name': 'Default Reader'})
-
-                        # Store the data in the database
-                        TagEvent.objects.create(
-                            reader=reader,
-                            epc=epc_hex,  # Store the hexadecimal EPC
-                            timestamp=timestamp,
-                            antenna_port=antenna_port if antenna_port is not None and antenna_port > 0 else None,
-                            antenna_name=antenna_name,
-                            peak_rssi_cdbm=peak_rssi_cdbm if peak_rssi_cdbm is not None and peak_rssi_cdbm < 0 else None,
-                            frequency=frequency if frequency is not None and frequency > 0 else None,
-                            transmit_power_cdbm=transmit_power_cdbm if transmit_power_cdbm is not None and transmit_power_cdbm > 0 else None,
-                            last_seen_time=last_seen_time,
-                            tid=tid_base64,
-                            tid_hex=tid_hex
-                        )
-        return JsonResponse({'status': 'ok'})
+        return JsonResponse({'status': 'queued'})
+    
     return JsonResponse({'status': 'bad request'}, status=400)
 
 def tag_event_list(request):
