@@ -78,12 +78,12 @@ Tag Events: View and filter tag events at ``http://localhost:8000/tags/``.
 
 The Docker Compose file is configured to run the Django application and the PostgreSQL database. Here’s a basic overview:
 ```yaml
-version: '3.8'
+vversion: '3.8'
 
 services:
   web:
     build: .
-    command: python manage.py runserver 0.0.0.0:8000
+    command: gunicorn iotapimanager.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - .:/app
     ports:
@@ -92,15 +92,38 @@ services:
       - .env
     depends_on:
       - db
+      - rabbitmq
 
   db:
-    image: postgres
+    image: postgres:13
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     environment:
       POSTGRES_DB: django_db
       POSTGRES_USER: django_user
       POSTGRES_PASSWORD: django_password
+    ports:
+      - "5432:5432"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+    ports:
+      - "5672:5672"  # Default RabbitMQ port
+      - "15672:15672"  # RabbitMQ Management UI
+
+  worker:
+    build: .
+    command: celery -A iotapimanager worker -l info
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - rabbitmq
+      - db
 
 volumes:
   postgres_data:
