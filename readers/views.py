@@ -13,6 +13,10 @@ import csv
 import requests
 import json
 import base64
+import logging
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG)
 
 def reader_list(request):
     readers = Reader.objects.all()
@@ -69,17 +73,16 @@ def stop_preset(request, pk):
 
 @csrf_exempt
 def webhook_receiver(request):
-    # Print the HTTP method and full request headers and body for debugging purposes
-    print(f"Method: {request.method}")
-    print("Headers:")
+    logger.info(f"Method: {request.method}")
+    logger.info("Headers:")
     for header, value in request.headers.items():
-        print(f"{header}: {value}")
-    
+        logger.info(f"{header}: {value}")
+
     try:
-        print("Body:")
-        print(request.body.decode('utf-8'))
+        logger.info("Body:")
+        logger.info(request.body.decode('utf-8'))
     except Exception as e:
-        print(f"Error reading body: {e}")
+        logger.error(f"Error reading body: {e}")
 
     if request.method == 'POST':
         try:
@@ -91,8 +94,11 @@ def webhook_receiver(request):
         if isinstance(data, list) and not data:
             return JsonResponse({'status': 'keepalive'}, status=204)
 
-        # Enqueue the data for processing
-        process_webhook_data.delay(data)
+        try:
+            process_webhook_data.delay(data)
+        except Exception as e:
+            logger.error(f"Error queuing task: {e}")
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
         
         return JsonResponse({'status': 'queued'})
     

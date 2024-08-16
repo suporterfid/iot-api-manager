@@ -3,7 +3,7 @@ from .models import Reader, TagEvent
 from datetime import datetime
 import base64
 
-@shared_task
+@shared_task(queue='webhook_queue')
 def process_webhook_data(data):
     for event in data:
         if event.get('eventType') == 'tagInventory':

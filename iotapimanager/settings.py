@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 import os
 from pathlib import Path
+from kombu import Exchange, Queue
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -34,6 +35,18 @@ DATABASES = {
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-8gw&=e(wa%vxaye11h7mg2v1oaxee5ykw5kxh=a-urt$6j*0i)'
+
+CELERY_BROKER_URL = 'amqp://user:password@rabbitmq:5672//'
+CELERY_RESULT_BACKEND = 'rpc://'  
+
+CELERY_TASK_QUEUES = (
+    Queue('default', Exchange('default'), routing_key='default'),
+    Queue('webhook_queue', Exchange('webhook_exchange'), routing_key='webhook'),
+)
+
+CELERY_TASK_DEFAULT_QUEUE = 'default'
+CELERY_TASK_DEFAULT_EXCHANGE = 'default'
+CELERY_TASK_DEFAULT_ROUTING_KEY = 'default'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True

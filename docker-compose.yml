@@ -12,7 +12,7 @@ services:
       - .env
     depends_on:
       - db
-      - redis
+      - rabbitmq
 
   db:
     image: postgres:13
@@ -25,10 +25,14 @@ services:
     ports:
       - "5432:5432"
 
-  redis:
-    image: redis:alpine
+  rabbitmq:
+    image: rabbitmq:3-management
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
     ports:
-      - "6379:6379"
+      - "5672:5672"  # Default RabbitMQ port
+      - "15672:15672"  # RabbitMQ Management UI
 
   worker:
     build: .
@@ -38,7 +42,7 @@ services:
     env_file:
       - .env
     depends_on:
-      - redis
+      - rabbitmq
       - db
 
 volumes:
