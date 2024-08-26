@@ -1,12 +1,14 @@
 # Django RFID Reader Management and Tag Event Application
 
-This Django application is designed to manage R700 RFID readers and process tag events received from those readers. The application provides a user interface (UI) to create, list, update, and delete records for R700 RFID readers. It also allows the user to start and stop inventory presets on the readers and handles incoming tag events via webhooks. This software was not developed with the intention of being used in production environments; it is only an example of how to communicate with reader APIs and receive events.
+This Django application is designed to manage R700 RFID readers and process tag events received from those readers. The application provides a user interface (UI) to create, list, update, and delete records for R700 RFID readers. It also allows the user to manage inventory presets on the readers, start and stop these presets, and handle incoming tag events via webhooks. Additionally, the application includes authentication features, ensuring that only authorized users can access the system. This software was not developed with the intention of being used in production environments; it is only an example of how to communicate with reader APIs and receive events.
 
 ## Features
 
 - **Reader Management**: Create, list, update, and delete RFID reader records, including serial number, name, IP address, port, username, and password.
+- **Preset Management**: Query, create, update, delete, and manage multiple presets per reader. Only one preset can be active at a time. The presets can be configured and sent to the readers via the API.
 - **Preset Control**: Start and stop inventory presets on RFID readers directly from the UI.
 - **Tag Event Handling**: Receive, store, and display tag events via webhooks, with filtering options by reader and date range.
+- **Authentication**: Secure the application using Django's built-in authentication system, requiring users to log in before accessing the application.
 - **UI Enhancements**: Responsive design using Bootstrap, with features like tooltips, icons, sortable columns, and modals for detailed event views.
 
 ## Technologies Used
@@ -70,6 +72,7 @@ You can access the Django admin interface at ``http://localhost:8000/admin`` usi
 ### 7. Accessing the Application
 Readers: Manage readers at ``http://localhost:8000/readers/``.
 Tag Events: View and filter tag events at ``http://localhost:8000/tags/``.
+Presets: Manage presets associated with readers at ``http://localhost:8000/reader/<reader_id>/presets/``.
 
 
 ## Docker Compose Configuration
@@ -78,7 +81,7 @@ Tag Events: View and filter tag events at ``http://localhost:8000/tags/``.
 
 The Docker Compose file is configured to run the Django application and the PostgreSQL database. Here’s a basic overview:
 ```yaml
-vversion: '3.8'
+version: '3.8'
 
 services:
   web:

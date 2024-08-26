@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.admin import AdminSite
-from .models import Reader, TagEvent
+from .models import Reader, Preset, TagEvent
 
 class MyAdminSite(AdminSite):
     site_header = 'Reader Manager Admin'
@@ -8,6 +8,10 @@ class MyAdminSite(AdminSite):
     index_title = 'Welcome to Reader Manager Admin'
 
 admin_site = MyAdminSite(name='myadmin')
+
+class PresetInline(admin.TabularInline):
+    model = Preset
+    extra = 1
 
 @admin.register(Reader)
 class ReaderAdmin(admin.ModelAdmin):

@@ -11,3 +11,7 @@ def query_transform(context, *args):
         if value is not None:
             updated[arg] = value
     return updated.urlencode()
+
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)

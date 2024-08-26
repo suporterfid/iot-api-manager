@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>{% if preset %}Edit{% else %}Add{% endif %} Preset</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">{% if preset %}Update{% else %}Create{% endif %}</button>
+</form>
+{% endblock %}

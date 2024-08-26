@@ -22,7 +22,9 @@
 <body>
     <div class="d-flex">
         <!-- Sidebar -->
+        {% if user.is_authenticated %}
         <nav class="sidebar bg-light p-3">
+            <p>Welcome, {{ user.username }}! <a href="{% url 'logout' %}">Logout</a></p>
             <h4>Menu</h4>
             <ul class="nav flex-column">
                 <li class="nav-item">
@@ -36,6 +38,7 @@
                 </li>
             </ul>
         </nav>
+        {% endif %}
 
         <!-- Page Content -->
         <div class="content flex-grow-1">

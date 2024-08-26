@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Presets for {{ reader.name }}</h2>
+<a href="{% url 'preset_add' reader.id %}" class="btn btn-primary">Add Preset</a>
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Configuration</th>
+            <th>Active</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for preset in presets %}
+        <tr>
+            <td>{{ preset.preset_id }}</td>
+            <td>{{ preset.configuration }}</td>
+            <td>{{ preset.is_active }}</td>
+            <td>
+                <a href="{% url 'preset_edit' preset.id %}" class="btn btn-sm btn-warning">Edit</a>
+                <a href="{% url 'preset_delete' preset.id %}" class="btn btn-sm btn-danger">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

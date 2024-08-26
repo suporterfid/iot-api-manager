@@ -1,8 +1,22 @@
 {% extends 'base.html' %}
 
+{% load custom_filters %}
+
 {% block content %}
 <div class="container">
     <h2>Readers</h2>
+
+    {% if messages %}
+    <div class="alert-container">
+        {% for message in messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
     <a href="{% url 'reader_create' %}" class="btn btn-primary mb-3">Add Reader</a>
     <div class="table-responsive">
         <table class="table table-striped table-bordered table-hover">
@@ -12,7 +26,7 @@
                     <th>Serial Number</th>
                     <th>IP Address</th>
                     <th>Port</th>
-                    <th>Preset ID</th>
+                    <th>Presets</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -23,12 +37,27 @@
                     <td>{{ reader.serial_number }}</td>
                     <td>{{ reader.ip_address }}</td>
                     <td>{{ reader.port }}</td>
-                    <td>{{ reader.preset_id|default:"default" }}</td>
                     <td>
+                        <button onclick="queryPresets({{ reader.pk }})" class="btn btn-info btn-sm">Query Presets</button>
+                        <form method="POST" action="{% url 'start_preset' reader.pk %}" class="d-inline mt-2" id="preset-form-{{ reader.pk }}">
+                            {% csrf_token %}
+                            <select name="preset_id" id="preset-select-{{ reader.pk }}" class="form-select mt-2">
+                                <option value="">Select Preset</option>
+                                {% for preset in reader.presets.all %}
+                                <option value="{{ preset.preset_id }}" {% if active_presets|get_item:reader.pk == preset.preset_id %}selected{% endif %}>{{ preset.preset_id }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="button" class="btn btn-primary btn-sm mt-2" onclick="showPresetDetails({{ reader.pk }})">Show Details</button>
+                            <button type="submit" name="action" value="start" class="btn btn-success btn-sm mt-2">Start Preset</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form method="POST" action="{% url 'stop_preset' reader.pk %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-secondary btn-sm">Stop Preset</button>
+                        </form>
                         <a href="{% url 'reader_update' reader.pk %}" class="btn btn-warning btn-sm">Edit</a>
                         <a href="{% url 'reader_delete' reader.pk %}" class="btn btn-danger btn-sm">Delete</a>
-                        <button onclick="startPreset({{ reader.pk }})" class="btn btn-success btn-sm">Start Preset</button>
-                        <button onclick="stopPreset({{ reader.pk }})" class="btn btn-secondary btn-sm">Stop Preset</button>
                     </td>
                 </tr>
                 {% endfor %}
@@ -37,17 +66,112 @@
     </div>
 </div>
 
+<!-- Modal for displaying preset details -->
+<div class="modal fade" id="presetDetailsModal" tabindex="-1" aria-labelledby="presetDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="presetDetailsModalLabel">Preset Details for <span id="modalReaderName"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h6>Reader IP: <span id="modalReaderIP"></span></h6>
+                <textarea id="modalPresetConfig" class="form-control" rows="15"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="savePresetConfig({{ reader.pk }})">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-function startPreset(pk) {
-    fetch(`/start-preset/${pk}/`)
+function queryPresets(pk) {
+    fetch(`/query-presets/${pk}/`)
         .then(response => response.json())
-        .then(data => alert('Preset started'));
+        .then(data => {
+            let select = document.getElementById(`preset-select-${pk}`);
+            select.innerHTML = '<option value="">Select Preset</option>';
+            data.presets.forEach(preset => {
+                let option = document.createElement('option');
+                option.value = preset.preset_id;
+                option.text = preset.preset_id;
+                select.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error querying presets:', error));
 }
 
-function stopPreset(pk) {
-    fetch(`/stop-preset/${pk}/`)
+function showPresetDetails(pk) {
+    const presetId = document.getElementById(`preset-select-${pk}`).value;
+    if (!presetId) {
+        alert('Please select a preset first.');
+        return;
+    }
+
+    fetch(`/get-preset-details/${pk}/${presetId}/`)
         .then(response => response.json())
-        .then(data => alert('Preset stopped'));
+        .then(data => {
+            // Populate modal with preset details
+            document.getElementById('modalReaderName').textContent = data.reader_name;
+            document.getElementById('modalReaderIP').textContent = data.reader_ip;
+            document.getElementById('modalPresetConfig').value = data.preset_configuration;
+            
+            // Show the modal
+            const detailsModal = new bootstrap.Modal(document.getElementById('presetDetailsModal'));
+            detailsModal.show();
+        })
+        .catch(error => console.error('Error fetching preset details:', error));
 }
+
+function savePresetConfig(pk) {
+    const presetId = document.getElementById(`preset-select-${pk}`).value;
+    const newConfig = document.getElementById('modalPresetConfig').value;
+
+    fetch(`/preset/${pk}/edit/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            preset_id: presetId,
+            configuration: JSON.parse(newConfig)
+        })
+    })
+    .then(response => {
+        if (response.ok) {
+            alert('Preset configuration updated successfully.');
+        } else {
+            alert('Error updating preset configuration.');
+        }
+    })
+    .catch(error => console.error('Error saving preset configuration:', error));
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Automatically hide messages after 5 seconds
+setTimeout(function() {
+    let alertElements = document.querySelectorAll('.alert-dismissible');
+    alertElements.forEach(function(alert) {
+        let bsAlert = new bootstrap.Alert(alert);
+        bsAlert.close();
+    });
+}, 5000);
 </script>
 {% endblock %}
