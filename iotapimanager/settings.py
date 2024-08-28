@@ -11,7 +11,9 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 import os
 from pathlib import Path
+from pythonjsonlogger import jsonlogger
 from kombu import Exchange, Queue
+from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -30,23 +32,94 @@ DATABASES = {
     }
 }
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'json': {
+            '()': 'pythonjsonlogger.jsonlogger.JsonFormatter',
+        },
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(message)s',
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+        'logstash': {
+            'class': 'logstash_async.handler.AsynchronousLogstashHandler',
+            'host': 'logstash',  # Refers to the Logstash service in Docker Compose
+            'port': 5044,
+            'database_path': os.path.join(os.path.dirname(__file__), 'logstash.db'),
+            'ssl_enable': False,
+            'ssl_verify': False,
+            'formatter': 'json',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'logstash'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'iotapimanager': {
+            'handlers': ['console', 'logstash'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-8gw&=e(wa%vxaye11h7mg2v1oaxee5ykw5kxh=a-urt$6j*0i)'
 
+CELERY_BEAT_SCHEDULE = {
+    'update-departure-time-every-minute': {
+        'task': 'iotapimanager.tasks.process_departure_time',
+        'schedule': crontab(minute='*'),  # Run every minute
+    },
+}
+
 CELERY_BROKER_URL = 'amqp://user:password@rabbitmq:5672//'
 CELERY_RESULT_BACKEND = 'rpc://'  
 
 CELERY_TASK_QUEUES = (
     Queue('default', Exchange('default'), routing_key='default'),
-    Queue('webhook_queue', Exchange('webhook_exchange'), routing_key='webhook'),
+    Queue('webhook_queue', Exchange('webhook_exchange'), routing_key='webhook.#'),
+    Queue('webhook_settings_queue', Exchange('webhook_settings_exchange'), routing_key='webhook_settings.#'),
+    Queue('mqtt_settings_queue', Exchange('mqtt_settings_exchange'), routing_key='mqtt_settings.#'),
 )
 
 CELERY_TASK_DEFAULT_QUEUE = 'default'
 CELERY_TASK_DEFAULT_EXCHANGE = 'default'
 CELERY_TASK_DEFAULT_ROUTING_KEY = 'default'
+
+# Routing configuration
+CELERY_TASK_ROUTES = {
+    'iotapimanager.tasks.process_webhook': {
+        'queue': 'webhook_queue', 
+        'routing_key': 'webhook.process',
+        'exchange': 'webhook'
+    },
+    'iotapimanager.tasks.process_webhook_settings': {
+        'queue': 'webhook_settings_queue', 
+        'routing_key': 'webhook_settings.process',
+        'exchange': 'webhook_settings'
+    },
+    'iotapimanager.tasks.process_mqtt_settings': {
+        'queue': 'mqtt_settings_queue', 
+        'routing_key': 'mqtt_settings.process',
+        'exchange': 'mqtt_settings'
+    },
+}
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
@@ -69,6 +142,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_celery_beat',
     'readers',
 ]
 

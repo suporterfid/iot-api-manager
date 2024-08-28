@@ -20,5 +20,6 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('readers.urls')),
+    
     path('accounts/', include('django.contrib.auth.urls')),  # This line includes built-in auth URLs
 ]

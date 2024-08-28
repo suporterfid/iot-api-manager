@@ -1,5 +1,6 @@
 from django.db import models
 import requests
+from django.utils import timezone
 
 class Reader(models.Model):
     serial_number = models.CharField(max_length=50, unique=True)
@@ -24,7 +25,90 @@ class Reader(models.Model):
             return active_preset_id
         except requests.exceptions.RequestException as e:
             return f"Error: {str(e)}"
+
+class Location(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+class ReadPoint(models.Model):
+    name = models.CharField(max_length=100)
+    readers = models.ManyToManyField(Reader, related_name='read_points', blank=True)
+    timeout_seconds = models.IntegerField(default=300)  # Timeout in seconds
+
+    def __str__(self):
+        return self.name
+
+class TagTraceability(models.Model):
+    epc = models.CharField(max_length=256)
+    read_point = models.ForeignKey(ReadPoint, on_delete=models.CASCADE)
+    location = models.ForeignKey(Location, on_delete=models.CASCADE)
+    arrived_at = models.DateTimeField(null=True, blank=True)
+    last_seen = models.DateTimeField(null=True, blank=True)
+    departed_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.epc} - {self.read_point.name}'
+
+    def update_departure(self):
+        if not self.departed_at:
+            self.departed_at = timezone.now()
+            self.save()
         
+class WebhookTemplate(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    content = models.JSONField(default=dict)  # Single JSON field for the entire template content
+    readers = models.ManyToManyField('Reader', related_name='webhook_templates')
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Enqueue a task to send the template to each associated reader
+        from .tasks import process_webhook_settings
+        for reader in self.readers.all():
+            process_webhook_settings.apply_async((self.id, reader.id))
+
+    def __str__(self):
+        return self.name
+
+class WebhookTemplateApplicationResult(models.Model):
+    template = models.ForeignKey(WebhookTemplate, on_delete=models.CASCADE, related_name='application_results')
+    reader = models.ForeignKey(Reader, on_delete=models.CASCADE, related_name='webhook_application_results')
+    success = models.BooleanField(default=False)
+    response_message = models.TextField(null=True, blank=True)
+    timestamp = models.DateTimeField(default=timezone.now)
+    retry = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'{self.template.name} -> {self.reader.name} ({self.success})'
+
+
+class MqttTemplate(models.Model):
+    name = models.CharField(max_length=255)
+    content = models.JSONField(default=dict)
+    readers = models.ManyToManyField(Reader, related_name='mqtt_templates')
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Enqueue a task to send the template to each associated reader
+        from .tasks import process_mqtt_settings
+        for reader in self.readers.all():
+            process_mqtt_settings.apply_async((self.id, reader.id))
+
+    def __str__(self):
+        return self.name
+
+class MQTTTemplateApplicationResult(models.Model):
+    template = models.ForeignKey(MqttTemplate, on_delete=models.CASCADE, related_name='application_results')
+    reader = models.ForeignKey(Reader, on_delete=models.CASCADE, related_name='mqtt_application_results')
+    success = models.BooleanField(default=False)
+    response_message = models.TextField(null=True, blank=True)
+    timestamp = models.DateTimeField(default=timezone.now)
+    retry = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'{self.template.name} -> {self.reader.name} ({self.success})'
+    
 class Preset(models.Model):
     reader = models.ForeignKey(Reader, on_delete=models.CASCADE, related_name='presets')
     preset_id = models.CharField(max_length=255, unique=True)
@@ -55,6 +139,14 @@ class Preset(models.Model):
         response = requests.delete(url, auth=auth, verify=False)
         return response
     
+class PresetTemplate(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    configuration = models.JSONField()  # Stores the preset configuration as JSON
+    readers = models.ManyToManyField('Reader', related_name='preset_templates', blank=True)
+
+    def __str__(self):
+        return self.name
+
 class TagEvent(models.Model):
     reader = models.ForeignKey(Reader, on_delete=models.CASCADE)
     epc = models.CharField(max_length=256)

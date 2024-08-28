@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>Tag Traceability</h2>
+    
+    <!-- Filter Form -->
+    <form method="get" class="mb-4">
+        <div class="row">
+            <div class="col-md-3">
+                <input type="text" name="epc" class="form-control" placeholder="EPC contains" value="{{ request.GET.epc }}">
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="read_point" class="form-control" placeholder="Read Point" value="{{ request.GET.read_point }}">
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="location" class="form-control" placeholder="Location" value="{{ request.GET.location }}">
+            </div>
+            <div class="col-md-2">
+                <select name="sort_by" class="form-control">
+                    <option value="arrived_at" {% if request.GET.sort_by == 'arrived_at' %}selected{% endif %}>Arrived At</option>
+                    <option value="departed_at" {% if request.GET.sort_by == 'departed_at' %}selected{% endif %}>Departed At</option>
+                </select>
+            </div>
+            <div class="col-md-1">
+                <select name="order" class="form-control">
+                    <option value="asc" {% if request.GET.order == 'asc' %}selected{% endif %}>Asc</option>
+                    <option value="desc" {% if request.GET.order == 'desc' %}selected{% endif %}>Desc</option>
+                </select>
+            </div>
+        </div>
+        <div class="mt-2">
+            <button type="submit" class="btn btn-primary">Filter</button>
+            <a href="{% url 'tag_traceability_list' %}" class="btn btn-secondary">Clear</a>
+        </div>
+    </form>
+
+    <!-- Tag Traceability Table -->
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover">
+            <thead class="thead-light">
+                <tr>
+                    <th>EPC</th>
+                    <th>Read Point</th>
+                    <th>Location</th>
+                    <th>Arrived At</th>
+                    <th>Last Seen</th>
+                    <th>Departed At</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for trace in traces %}
+                <tr>
+                    <td>{{ trace.epc }}</td>
+                    <td>{{ trace.read_point.name }}</td>
+                    <td>{{ trace.location.name }}</td>
+                    <td>{{ trace.arrived_at }}</td>
+                    <td>{{ trace.last_seen }}</td>
+                    <td>{{ trace.departed_at }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination controls -->
+    <nav>
+        <ul class="pagination justify-content-center">
+            {% if traces.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ traces.previous_page_number }}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            {% endif %}
+            {% for num in traces.paginator.page_range %}
+            <li class="page-item {% if traces.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+            {% endfor %}
+            {% if traces.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ traces.next_page_number }}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+{% endblock %}

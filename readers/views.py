@@ -1,19 +1,21 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Paginator
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.db.models import Q, Count
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from datetime import timedelta
-from .models import Reader, Preset, TagEvent
-from .forms import ReaderForm, PresetForm
+from elasticsearch import Elasticsearch
+from .models import Location, Reader, Preset, PresetTemplate, ReadPoint, TagEvent, TagTraceability, MqttTemplate, MQTTTemplateApplicationResult, WebhookTemplate, WebhookTemplateApplicationResult
+from .forms import ReaderForm, PresetForm, PresetTemplateForm, MqttTemplateForm, WebhookTemplateForm
 from django.http import JsonResponse
 from django.http import HttpResponse
-from .tasks import process_webhook_data
+from .tasks import process_webhook, process_webhook_settings, process_mqtt_settings
 import csv
 import requests
 import json
@@ -198,6 +200,81 @@ def stop_preset(request, pk):
         messages.error(request, f'Error stopping preset: {str(e)}')
     return redirect('reader_list')
 
+@login_required
+def view_logs(request):
+    es = Elasticsearch(['http://elasticsearch:9200'])
+
+    # Retrieve query parameters for filtering
+    level = request.GET.get('level', '')
+    message = request.GET.get('message', '')
+    host = request.GET.get('host', '')
+    port = request.GET.get('port', '')
+    start_date = request.GET.get('start_date', '')
+    end_date = request.GET.get('end_date', '')
+
+    # Elasticsearch query with filters
+    query = {
+        "bool": {
+            "must": []
+        }
+    }
+
+    if level:
+        query["bool"]["must"].append({"match": {"level": level}})
+    if message:
+        query["bool"]["must"].append({"match": {"message": message}})
+    if host:
+        query["bool"]["must"].append({"match": {"host": host}})
+    if port:
+        query["bool"]["must"].append({"match": {"port": port}})
+    if start_date and end_date:
+        query["bool"]["must"].append({
+            "range": {
+                "@timestamp": {
+                    "gte": f"{start_date}T00:00:00",
+                    "lte": f"{end_date}T23:59:59"
+                }
+            }
+        })
+
+    response = es.search(
+        index="django-logs-*",
+        body={
+                "query": query,
+                "sort": [
+                    {"@timestamp": {"order": "desc"}}
+                ]              
+            }
+    )
+
+    logs = [
+        {
+            'timestamp': log['_source'].get('@timestamp'),
+            'level': log['_source'].get('level', 'N/A'),
+            'message': log['_source'].get('message'),
+            'host': log['_source'].get('host'),
+            'port': log['_source'].get('port'),
+        }
+        for log in response['hits']['hits']
+    ]
+
+    # Pagination
+    paginator = Paginator(logs, 10)  # Show 10 logs per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'logs': page_obj,
+        'level': level,
+        'message': message,
+        'host': host,
+        'port': port,
+        'start_date': start_date,
+        'end_date': end_date,
+    }
+
+    return render(request, 'readers/logs.html', context)
+
 @csrf_exempt
 def webhook_receiver(request):
     logger.info(f"Method: {request.method}")
@@ -222,7 +299,7 @@ def webhook_receiver(request):
             return JsonResponse({'status': 'keepalive'}, status=204)
 
         try:
-            process_webhook_data.delay(data)
+            process_webhook.delay(data)
         except Exception as e:
             logger.error(f"Error queuing task: {e}")
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
@@ -359,7 +436,7 @@ def dashboard(request):
     
     return render(request, 'readers/dashboard.html', context)
 
-class PresetListView(ListView):
+class PresetListView(LoginRequiredMixin, ListView):
     model = Preset
     template_name = 'readers/preset_list.html'
     context_object_name = 'presets'
@@ -379,7 +456,7 @@ class PresetListView(ListView):
 
         return context
     
-class PresetCreateView(CreateView):
+class PresetCreateView(LoginRequiredMixin, CreateView):
     model = Preset
     form_class = PresetForm
     template_name = 'readers/preset_form.html'
@@ -392,7 +469,7 @@ class PresetCreateView(CreateView):
         preset.send_to_reader()
         return response
 
-class PresetUpdateView(UpdateView):
+class PresetUpdateView(LoginRequiredMixin, UpdateView):
     model = Preset
     form_class = PresetForm
     template_name = 'readers/preset_form.html'
@@ -406,7 +483,7 @@ class PresetUpdateView(UpdateView):
             return JsonResponse({'status': 'success'})
         return super().form_valid(form)
 
-class PresetDeleteView(DeleteView):
+class PresetDeleteView(LoginRequiredMixin, DeleteView):
     model = Preset
     template_name = 'readers/preset_confirm_delete.html'
     success_url = reverse_lazy('reader_list')
@@ -416,3 +493,181 @@ class PresetDeleteView(DeleteView):
         # Send delete request to the reader
         preset.delete_from_reader()
         return super().delete(request, *args, **kwargs)
+    
+class PresetTemplateListView(LoginRequiredMixin, ListView):
+    model = PresetTemplate
+    template_name = 'readers/preset_template_list.html'
+    context_object_name = 'preset_templates'
+
+class PresetTemplateCreateView(LoginRequiredMixin, CreateView):
+    model = PresetTemplate
+    form_class = PresetTemplateForm
+    template_name = 'readers/preset_template_form.html'
+    success_url = reverse_lazy('preset_template_list')
+
+class PresetTemplateUpdateView(LoginRequiredMixin, UpdateView):
+    model = PresetTemplate
+    form_class = PresetTemplateForm
+    template_name = 'readers/preset_template_form.html'
+    success_url = reverse_lazy('preset_template_list')
+
+class PresetTemplateDeleteView(LoginRequiredMixin, DeleteView):
+    model = PresetTemplate
+    template_name = 'readers/preset_template_confirm_delete.html'
+    success_url = reverse_lazy('preset_template_list')
+
+class WebhookTemplateListView(LoginRequiredMixin, ListView):
+    model = WebhookTemplate
+    template_name = 'readers/webhook_template_list.html'
+    context_object_name = 'webhook_templates'
+
+class WebhookTemplateCreateView(LoginRequiredMixin, CreateView):
+    model = WebhookTemplate
+    form_class = WebhookTemplateForm
+    template_name = 'readers/webhook_template_form.html'
+    success_url = reverse_lazy('webhook_template_list')
+
+class WebhookTemplateUpdateView(LoginRequiredMixin, UpdateView):
+    model = WebhookTemplate
+    form_class = WebhookTemplateForm
+    template_name = 'readers/webhook_template_form.html'
+    success_url = reverse_lazy('webhook_template_list')
+
+class WebhookTemplateDeleteView(LoginRequiredMixin, DeleteView):
+    model = WebhookTemplate
+    template_name = 'readers/webhook_template_confirm_delete.html'
+    success_url = reverse_lazy('webhook_template_list')
+
+class WebhookTemplateResultListView(ListView):
+    model = WebhookTemplateApplicationResult
+    template_name = 'readers/webhook_template_result_list.html'
+    context_object_name = 'results'
+
+class WebhookTemplateResultRetryView(DetailView):
+    model = WebhookTemplateApplicationResult
+    template_name = 'readers/webhook_template_result_retry.html'
+    context_object_name = 'result'
+
+    def post(self, request, *args, **kwargs):
+        result = self.get_object()
+        process_webhook_settings.apply_async((result.template.id, result.reader.id))
+        result.retry = True
+        result.save()
+        return redirect('webhook_template_result_list')
+
+class MqttTemplateListView(LoginRequiredMixin, ListView):
+    model = MqttTemplate
+    template_name = 'readers/mqtt_template_list.html'
+    context_object_name = 'mqtt_templates'
+
+class MqttTemplateCreateView(LoginRequiredMixin, CreateView):
+    model = MqttTemplate
+    form_class = MqttTemplateForm
+    template_name = 'readers/mqtt_template_form.html'
+    success_url = reverse_lazy('mqtt_template_list')
+
+class MqttTemplateUpdateView(LoginRequiredMixin, UpdateView):
+    model = MqttTemplate
+    form_class = MqttTemplateForm
+    template_name = 'readers/mqtt_template_form.html'
+    success_url = reverse_lazy('mqtt_template_list')
+
+class MqttTemplateDeleteView(LoginRequiredMixin, DeleteView):
+    model = MqttTemplate
+    template_name = 'readers/mqtt_template_confirm_delete.html'
+    success_url = reverse_lazy('mqtt_template_list')
+
+class MQTTTemplateResultListView(ListView):
+    model = MQTTTemplateApplicationResult
+    template_name = 'readers/mqtt_template_result_list.html'
+    context_object_name = 'results'
+
+class MQTTTemplateResultRetryView(DetailView):
+    model = MQTTTemplateApplicationResult
+    template_name = 'readers/mqtt_template_result_retry.html'
+    context_object_name = 'result'
+
+    def post(self, request, *args, **kwargs):
+        result = self.get_object()
+        process_mqtt_settings.apply_async((result.template.id, result.reader.id))
+        result.retry = True
+        result.save()
+        return redirect('mqtt_template_result_list')
+
+# TagTraceability ListView with filtering, sorting, and pagination
+class TagTraceabilityListView(ListView):
+    model = TagTraceability
+    template_name = 'readers/tag_traceability_list.html'
+    context_object_name = 'traces'
+    paginate_by = 10  # Number of items per page
+
+    def get_queryset(self):
+        queryset = TagTraceability.objects.all()
+
+        # Filtering
+        epc = self.request.GET.get('epc', None)
+        read_point = self.request.GET.get('read_point', None)
+        location = self.request.GET.get('location', None)
+        if epc:
+            queryset = queryset.filter(epc__icontains=epc)
+        if read_point:
+            queryset = queryset.filter(read_point__name__icontains=read_point)
+        if location:
+            queryset = queryset.filter(location__name__icontains=location)
+
+        # Sorting
+        sort_by = self.request.GET.get('sort_by', 'arrived_at')
+        order = self.request.GET.get('order', 'desc')
+        if order == 'desc':
+            sort_by = '-' + sort_by
+        queryset = queryset.order_by(sort_by)
+
+        return queryset
+
+# CRUD for ReadPoint
+class ReadPointListView(ListView):
+    model = ReadPoint
+    template_name = 'readers/read_point_list.html'
+    context_object_name = 'read_points'
+    paginate_by = 10
+
+class ReadPointCreateView(CreateView):
+    model = ReadPoint
+    fields = ['name', 'readers', 'timeout_seconds']
+    template_name = 'readers/read_point_form.html'
+    success_url = reverse_lazy('read_point_list')
+
+class ReadPointUpdateView(UpdateView):
+    model = ReadPoint
+    fields = ['name', 'readers', 'timeout_seconds']
+    template_name = 'readers/read_point_form.html'
+    success_url = reverse_lazy('read_point_list')
+
+class ReadPointDeleteView(DeleteView):
+    model = ReadPoint
+    template_name = 'readers/read_point_confirm_delete.html'
+    success_url = reverse_lazy('read_point_list')
+
+# CRUD for Location
+class LocationListView(ListView):
+    model = Location
+    template_name = 'readers/location_list.html'
+    context_object_name = 'locations'
+    paginate_by = 10
+
+class LocationCreateView(CreateView):
+    model = Location
+    fields = ['name']
+    template_name = 'readers/location_form.html'
+    success_url = reverse_lazy('location_list')
+
+class LocationUpdateView(UpdateView):
+    model = Location
+    fields = ['name']
+    template_name = 'readers/location_form.html'
+    success_url = reverse_lazy('location_list')
+
+class LocationDeleteView(DeleteView):
+    model = Location
+    template_name = 'readers/location_confirm_delete.html'
+    success_url = reverse_lazy('location_list')
