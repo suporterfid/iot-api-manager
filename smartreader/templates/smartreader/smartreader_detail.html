@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>Smart Reader Details</h2>
+
+    <div class="accordion" id="smartreaderAccordion">
+        <!-- General Information Accordion -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingGeneral">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseGeneral" aria-expanded="true" aria-controls="collapseGeneral">
+                    General Information
+                </button>
+            </h2>
+            <div id="collapseGeneral" class="accordion-collapse collapse show" aria-labelledby="headingGeneral" data-bs-parent="#smartreaderAccordion">
+                <div class="accordion-body">
+                    <p><strong>Reader Name:</strong> {{ smartreader.reader_name }}</p>
+                    <p><strong>License Key:</strong> {{ smartreader.license_key }}</p>
+                    <p><strong>Profile Name:</strong> {{ smartreader.profile_name }}</p>
+                    <!-- Add more fields as needed -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Other Accordion Sections -->
+        <!-- Repeat similar accordion structure for other groups of fields -->
+    </div>
+
+    <a href="{% url 'smartreader_update' smartreader.pk %}" class="btn btn-warning">Edit</a>
+    <a href="{% url 'smartreader_delete' smartreader.pk %}" class="btn btn-danger">Delete</a>
+</div>
+{% endblock %}

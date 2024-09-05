@@ -1,0 +1,22 @@
+<!-- smartreader/templates/smartreader/alert_condition_form.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>{{ view.title }}</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="form-group">
+            <label for="compare_with_previous">Compare with Previous Event:</label>
+            {{ form.compare_with_previous }}
+        </div>
+        <div class="form-group">
+            <label for="comparison_type">Comparison Type:</label>
+            {{ form.comparison_type }}
+        </div>
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a href="{% url 'alert_condition_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>{{ view.title }}</h2>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <!-- General MQTT Settings -->
+        <div class="accordion" id="mqttConfigurationAccordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingGeneral">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseGeneral" aria-expanded="true" aria-controls="collapseGeneral">
+                        General MQTT Settings
+                    </button>
+                </h2>
+                <div id="collapseGeneral" class="accordion-collapse collapse show" aria-labelledby="headingGeneral" data-bs-parent="#mqttConfigurationAccordion">
+                    <div class="accordion-body">
+                        {{ form.enable_mqtt|as_crispy_field }}
+                        {{ form.broker_hostname|as_crispy_field }}
+                        {{ form.broker_port|as_crispy_field }}
+                        {{ form.mqtt_broker_protocol|as_crispy_field }}
+                        {{ form.broker_username|as_crispy_field }}
+                        {{ form.broker_password|as_crispy_field }}
+                        {{ form.mqtt_broker_keepalive|as_crispy_field }}
+                        {{ form.mqtt_broker_clean_session|as_crispy_field }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Batch Reporting Settings -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingBatchReporting">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBatchReporting" aria-expanded="false" aria-controls="collapseBatchReporting">
+                        Batch Reporting Settings
+                    </button>
+                </h2>
+                <div id="collapseBatchReporting" class="accordion-collapse collapse" aria-labelledby="headingBatchReporting" data-bs-parent="#mqttConfigurationAccordion">
+                    <div class="accordion-body">
+                        {{ form.enable_batch_list_reporting|as_crispy_field }}
+                        {{ form.clear_batch_list_on_reload|as_crispy_field }}
+                        {{ form.publish_batch_list_on_change|as_crispy_field }}
+                        {{ form.publish_batch_list_on_change_interval|as_crispy_field }}
+                        {{ form.enable_publish_interval_for_batch_lists|as_crispy_field }}
+                        {{ form.publish_interval|as_crispy_field }}
+                        {{ form.filter_batch_updates_based_on_antenna_zone_grouping|as_crispy_field }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- MQTT Topics Settings -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingMQTTTopics">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMQTTTopics" aria-expanded="false" aria-controls="collapseMQTTTopics">
+                        MQTT Topics Settings
+                    </button>
+                </h2>
+                <div id="collapseMQTTTopics" class="accordion-collapse collapse" aria-labelledby="headingMQTTTopics" data-bs-parent="#mqttConfigurationAccordion">
+                    <div class="accordion-body">
+                        <h5>Tag Events</h5>
+                        {{ form.mqtt_tag_events_topic|as_crispy_field }}
+                        {{ form.mqtt_tag_events_qos|as_crispy_field }}
+                        {{ form.mqtt_tag_events_retain_messages|as_crispy_field }}
+
+                        <h5>Management Events</h5>
+                        {{ form.mqtt_management_events_topic|as_crispy_field }}
+                        {{ form.mqtt_management_events_qos|as_crispy_field }}
+                        {{ form.mqtt_management_events_retain_messages|as_crispy_field }}
+
+                        <h5>Metrics</h5>
+                        {{ form.mqtt_metrics_topic|as_crispy_field }}
+                        {{ form.mqtt_metrics_qos|as_crispy_field }}
+                        {{ form.mqtt_metrics_retain_messages|as_crispy_field }}
+
+                        <h5>Command Topics</h5>
+                        {{ form.enable_command_receiver|as_crispy_field }}
+                        {{ form.mqtt_management_command_topic|as_crispy_field }}
+                        {{ form.mqtt_management_command_qos|as_crispy_field }}
+                        {{ form.mqtt_management_command_retain_messages|as_crispy_field }}
+                        {{ form.mqtt_management_response_topic|as_crispy_field }}
+                        {{ form.mqtt_management_response_qos|as_crispy_field }}
+                        {{ form.mqtt_management_response_retain_messages|as_crispy_field }}
+                        {{ form.mqtt_control_command_topic|as_crispy_field }}
+                        {{ form.mqtt_control_command_qos|as_crispy_field }}
+                        {{ form.mqtt_control_command_retain_messages|as_crispy_field }}
+                        {{ form.mqtt_control_response_topic|as_crispy_field }}
+                        {{ form.mqtt_control_response_qos|as_crispy_field }}
+                        {{ form.mqtt_control_response_retain_messages|as_crispy_field }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">Save</button>
+        <a href="{% url 'mqttconfiguration_list' %}" class="btn btn-secondary mt-3">Cancel</a>
+    </form>
+</div>
+{% endblock %}

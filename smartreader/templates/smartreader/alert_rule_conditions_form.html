@@ -1,0 +1,12 @@
+{% extends "smartreader/alert_rule_form.html" %}
+
+{% block content %}
+<h2>Define Conditions</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ wizard.management_form }}
+    {{ wizard.formset.management_form }}
+    {{ wizard.formset.as_p }}
+    <button type="submit">{% if wizard.steps.last %}Finish{% else %}Next{% endif %}</button>
+</form>
+{% endblock %}

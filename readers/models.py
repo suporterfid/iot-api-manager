@@ -159,6 +159,10 @@ class TagEvent(models.Model):
     last_seen_time = models.DateTimeField(null=True, blank=True)
     tid = models.CharField(max_length=256, null=True, blank=True)
     tid_hex = models.CharField(max_length=256, null=True, blank=True)
+    rf_phase = models.FloatField(null=True, blank=True)  # For the smartreader type of event
+    tag_data_key = models.CharField(max_length=255, null=True, blank=True)  # For the smartreader type of event
+    tag_data_key_name = models.CharField(max_length=255, null=True, blank=True)  # For the smartreader type of event
+    tag_data_serial = models.CharField(max_length=255, null=True, blank=True)  # For the smartreader type of event
 
     def __str__(self):
         return f'{self.reader.name} - {self.epc}'

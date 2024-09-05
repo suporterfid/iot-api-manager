@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Readers{% endblock %}
+
+{% block app_menu %}
+<ul class="nav flex-column">
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'dashboard' %}"><i class="fas fa-home"></i> Home</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#readersSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+            <i class="fas fa-barcode"></i> Readers
+        </a>
+        <ul class="collapse list-unstyled" id="readersSubmenu">
+            <li>
+                <a class="nav-link" href="{% url 'reader_list' %}"><i class="fas fa-list"></i> Reader List</a>
+            </li>
+            <li>
+                <a class="nav-link" href="#templatesSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                    <i class="fas fa-cogs"></i> Templates
+                </a>
+                <ul class="collapse list-unstyled" id="templatesSubmenu">
+                    <li>
+                        <a class="nav-link" href="#webhookSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                            <i class="fas fa-network-wired"></i> Webhooks
+                        </a>
+                        <ul class="collapse list-unstyled" id="webhookSubmenu">
+                            <li><a class="nav-link" href="{% url 'webhook_template_list' %}"><i class="fas fa-plug"></i> Webhook Templates</a></li>
+                            <li><a class="nav-link" href="{% url 'webhook_template_result_list' %}"><i class="fas fa-clipboard-list"></i> Webhook Template Results</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a class="nav-link" href="#mqttSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                            <i class="fas fa-wifi"></i> MQTT
+                        </a>
+                        <ul class="collapse list-unstyled" id="mqttSubmenu">
+                            <li><a class="nav-link" href="{% url 'mqtt_template_list' %}"><i class="fas fa-broadcast-tower"></i> MQTT Templates</a></li>
+                            <li><a class="nav-link" href="{% url 'mqtt_template_result_list' %}"><i class="fas fa-clipboard-list"></i> MQTT Template Results</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#traceabilitySubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+            <i class="fas fa-tags"></i> Traceability
+        </a>
+        <ul class="collapse list-unstyled" id="traceabilitySubmenu">
+            <li><a class="nav-link" href="{% url 'tag_traceability_list' %}"><i class="fas fa-clipboard-list"></i> Tag Traceability</a></li>
+            <li><a class="nav-link" href="{% url 'location_list' %}"><i class="fas fa-map-marker-alt"></i> Locations</a></li>
+            <li><a class="nav-link" href="{% url 'read_point_list' %}"><i class="fas fa-rss"></i> Read Points</a></li>
+        </ul>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'tag_event_list' %}"><i class="fas fa-tags"></i> Tag Events</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'view_logs' %}"><i class="fas fa-file-alt"></i> Logs</a>
+    </li>
+</ul>
+{% endblock %}
+
+{% block content %}
+
+{% endblock %}

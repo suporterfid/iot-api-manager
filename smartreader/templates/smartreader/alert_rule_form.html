@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>{% if wizard.steps.current == "0" %}Basic Information{% elif wizard.steps.current == "1" %}Conditions{% elif wizard.steps.current == "2" %}Actions{% endif %}</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ wizard.management_form }}
+        {{ wizard.form.as_p }}
+
+        {% if wizard.steps.current == "2" %}
+        <div id="action-list">
+            {% for form in wizard.form.forms %}
+            <div class="action-form">
+                {{ form.as_p }}
+                <button type="button" class="remove-action">Remove</button>
+            </div>
+            {% endfor %}
+            <button type="button" id="add-action">Add Another Action</button>
+        </div>
+        {% endif %}
+
+        <button type="submit" class="btn btn-primary">Next</button>
+    </form>
+</div>
+{% endblock %}

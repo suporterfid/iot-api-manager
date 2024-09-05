@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container">
+    <h2>{{ view.title }}</h2>
+    
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="accordion" id="smartreaderAccordion">
+
+            <!-- General Settings -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingGeneral">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseGeneral" aria-expanded="true" aria-controls="collapseGeneral">
+                        General Settings
+                    </button>
+                </h2>
+                <div id="collapseGeneral" class="accordion-collapse collapse show" aria-labelledby="headingGeneral" data-bs-parent="#smartreaderAccordion">
+                    <div class="accordion-body">
+                        {{ form.reader_name|as_crispy_field }}
+                        {{ form.is_enabled|as_crispy_field }}
+                        {{ form.license_key|as_crispy_field }}
+                        {{ form.profile_name|as_crispy_field }}
+                        {{ form.is_current_profile|as_crispy_field }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Antenna Settings -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingAntenna">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAntenna" aria-expanded="false" aria-controls="collapseAntenna">
+                        Antenna Settings
+                    </button>
+                </h2>
+                <div id="collapseAntenna" class="accordion-collapse collapse" aria-labelledby="headingAntenna" data-bs-parent="#smartreaderAccordion">
+                    <div class="accordion-body">
+                        {{ form.antenna_ports|as_crispy_field }}
+                        {{ form.antenna_states|as_crispy_field }}
+                        {{ form.antenna_zones|as_crispy_field }}
+                        {{ form.transmit_power|as_crispy_field }}
+                        {{ form.receive_sensitivity|as_crispy_field }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trigger Settings -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingTrigger">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTrigger" aria-expanded="false" aria-controls="collapseTrigger">
+                        Trigger Settings
+                    </button>
+                </h2>
+                <div id="collapseTrigger" class="accordion-collapse collapse" aria-labelledby="headingTrigger" data-bs-parent="#smartreaderAccordion">
+                    <div class="accordion-body">
+                        {{ form.start_trigger_type|as_crispy_field }}
+                        {{ form.start_trigger_period|as_crispy_field }}
+                        {{ form.start_trigger_offset|as_crispy_field }}
+                        {{ form.start_trigger_utc_timestamp|as_crispy_field }}
+                        {{ form.start_trigger_gpi_event|as_crispy_field }}
+                        {{ form.start_trigger_gpi_port|as_crispy_field }}
+                        {{ form.stop_trigger_type|as_crispy_field }}
+                        {{ form.stop_trigger_duration|as_crispy_field }}
+                        {{ form.stop_trigger_timeout|as_crispy_field }}
+                        {{ form.stop_trigger_gpi_event|as_crispy_field }}
+                        {{ form.stop_trigger_gpi_port|as_crispy_field }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Network Settings -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingNetwork">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNetwork" aria-expanded="false" aria-controls="collapseNetwork">
+                        Network Settings
+                    </button>
+                </h2>
+                <div id="collapseNetwork" class="accordion-collapse collapse" aria-labelledby="headingNetwork" data-bs-parent="#smartreaderAccordion">
+                    <div class="accordion-body">
+                        {{ form.socket_server|as_crispy_field }}
+                        {{ form.socket_port|as_crispy_field }}
+                        {{ form.socket_command_server|as_crispy_field }}
+                        {{ form.socket_command_server_port|as_crispy_field }}
+                        {{ form.udp_server|as_crispy_field }}
+                        {{ form.udp_ip_address|as_crispy_field }}
+                        {{ form.udp_reader_port|as_crispy_field }}
+                        {{ form.udp_remote_ip_address|as_crispy_field }}
+                        {{ form.udp_remote_port|as_crispy_field }}
+                        {{ form.serial_port|as_crispy_field }}
+                        {{ form.usb_hid|as_crispy_field }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Software Filter Settings -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingSoftwareFilter">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSoftwareFilter" aria-expanded="false" aria-controls="collapseSoftwareFilter">
+                        Software Filter Settings
+                    </button>
+                </h2>
+                <div id="collapseSoftwareFilter" class="accordion-collapse collapse" aria-labelledby="headingSoftwareFilter" data-bs-parent="#smartreaderAccordion">
+                    <div class="accordion-body">
+                        {{ form.software_filter_enabled|as_crispy_field }}
+                        {{ form.software_filter_window_sec|as_crispy_field }}
+                        {{ form.software_filter_field|as_crispy_field }}
+                        {{ form.software_filter_read_count_timeout_enabled|as_crispy_field }}
+                        {{ form.software_filter_read_count_timeout_seen_count|as_crispy_field }}
+                        {{ form.software_filter_read_count_timeout_interval_in_sec|as_crispy_field }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Include Settings -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingInclude">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseInclude" aria-expanded="false" aria-controls="collapseInclude">
+                        Include Settings
+                    </button>
+                </h2>
+                <div id="collapseInclude" class="accordion-collapse collapse" aria-labelledby="headingInclude" data-bs-parent="#smartreaderAccordion">
+                    <div class="accordion-body">
+                        {{ form.include_reader_name|as_crispy_field }}
+                        {{ form.include_antenna_port|as_crispy_field }}
+                        {{ form.include_antenna_zone|as_crispy_field }}
+                        {{ form.include_first_seen_timestamp|as_crispy_field }}
+                        {{ form.include_peak_rssi|as_crispy_field }}
+                        {{ form.include_rf_phase_angle|as_crispy_field }}
+                        {{ form.include_rf_doppler_frequency|as_crispy_field }}
+                        {{ form.include_rf_channel_index|as_crispy_field }}
+                        {{ form.include_gpi_event|as_crispy_field }}
+                        {{ form.include_inventory_status_event|as_crispy_field }}
+                        {{ form.include_inventory_status_event_id|as_crispy_field }}
+                        {{ form.include_inventory_status_event_total_count|as_crispy_field }}
+                        {{ form.include_tid|as_crispy_field }}
+                        {{ form.tid_word_start|as_crispy_field }}
+                        {{ form.tid_word_count|as_crispy_field }}
+                        {{ form.include_user_memory|as_crispy_field }}
+                        {{ form.user_memory_word_start|as_crispy_field }}
+                        {{ form.user_memory_word_count|as_crispy_field }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- MQTT Settings -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingMQTT">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMQTT" aria-expanded="false" aria-controls="collapseMQTT">
+                        MQTT Settings
+                    </button>
+                </h2>
+                <div id="collapseMQTT" class="accordion-collapse collapse" aria-labelledby="headingMQTT" data-bs-parent="#smartreaderAccordion">
+                    <div class="accordion-body">
+                        {{ form.mqtt_enabled|as_crispy_field }}
+                        {{ form.mqtt_use_ssl|as_crispy_field }}
+                        {{ form.mqtt_ssl_ca_certificate|as_crispy_field }}
+                        {{ form.mqtt_ssl_client_certificate|as_crispy_field }}
+                        {{ form.mqtt_ssl_client_certificate_password|as_crispy_field }}
+                        {{ form.mqtt_broker_name|as_crispy_field }}
+                        {{ form.mqtt_broker_address|as_crispy_field }}
+                        {{ form.mqtt_broker_port|as_crispy_field }}
+                        {{ form.mqtt_broker_clean_session|as_crispy_field }}
+                        {{ form.mqtt_broker_keep_alive|as_crispy_field }}
+                        {{ form.mqtt_broker_debug|as_crispy_field }}
+                        {{ form.mqtt_tag_events_topic|as_crispy_field }}
+                        {{ form.mqtt_tag_events_qos|as_crispy_field }}
+                        {{ form.mqtt_tag_events_retain_messages|as_crispy_field }}
+                        {{ form.mqtt_management_events_topic|as_crispy_field }}
+                        {{ form.mqtt_management_events_qos|as_crispy_field }}
+                        {{ form.mqtt_management_events_retain_messages|as_crispy_field }}
+                        {{ form.mqtt_metric_events_topic|as_crispy_field }}
+                        {{ form.mqtt_metric_events_qos|as_crispy_field }}
+                        {{ form.mqtt_metric_events_retain_messages|as_crispy_field }}
+                        {{ form.mqtt_management_command_topic|as_crispy_field }}
+                        {{ form.mqtt_management_command_qos|as_crispy_field }}
+                        {{ form.mqtt_management_command_retain_messages|as_crispy_field }}
+                        {{ form.mqtt_management_response_topic|as_crispy_field }}
+                        {{ form.mqtt_management_response_qos|as_crispy_field }}
+                        {{ form.mqtt_management_response_retain_messages|as_crispy_field }}
+                        {{ form.mqtt_control_command_topic|as_crispy_field }}
+                        {{ form.mqtt_control_command_qos|as_crispy_field }}
+                        {{ form.mqtt_control_command_retain_messages|as_crispy_field }}
+                        {{ form.mqtt_control_response_topic|as_crispy_field }}
+                        {{ form.mqtt_control_response_qos|as_crispy_field }}
+                        {{ form.mqtt_control_response_retain_messages|as_crispy_field }}
+                        {{ form.mqtt_lwt_topic|as_crispy_field }}
+                        {{ form.mqtt_lwt_qos|as_crispy_field }}
+                        {{ form.mqtt_username|as_crispy_field }}
+                        {{ form.mqtt_password|as_crispy_field }}
+                        {{ form.mqtt_publish_interval_sec|as_crispy_field }}
+                        {{ form.mqtt_enable_smartreader_default_topics|as_crispy_field }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- HTTP Settings -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingHTTP">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseHTTP" aria-expanded="false" aria-controls="collapseHTTP">
+                        HTTP Settings
+                    </button>
+                </h2>
+                <div id="collapseHTTP" class="accordion-collapse collapse" aria-labelledby="headingHTTP" data-bs-parent="#smartreaderAccordion">
+                    <div class="accordion-body">
+                        {{ form.http_post_enabled|as_crispy_field }}
+                        {{ form.http_post_interval_sec|as_crispy_field }}
+                        {{ form.http_post_url|as_crispy_field }}
+                        {{ form.http_authentication_type|as_crispy_field }}
+                        {{ form.http_authentication_username|as_crispy_field }}
+                        {{ form.http_authentication_password|as_crispy_field }}
+                        {{ form.http_authentication_token_api_enabled|as_crispy_field }}
+                        {{ form.http_authentication_token_api_url|as_crispy_field }}
+                        {{ form.http_authentication_token_api_body|as_crispy_field }}
+                        {{ form.http_authentication_token_api_value|as_crispy_field }}
+                        {{ form.http_authentication_header|as_crispy_field }}
+                        {{ form.http_authentication_header_value|as_crispy_field }}
+                        {{ form.http_verify_post_http_return_code|as_crispy_field }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advanced Settings -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingAdvanced">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="false" aria-controls="collapseAdvanced">
+                        Advanced Settings
+                    </button>
+                </h2>
+                <div id="collapseAdvanced" class="accordion-collapse collapse" aria-labelledby="headingAdvanced" data-bs-parent="#smartreaderAccordion">
+                    <div class="accordion-body">
+                        {{ form.advanced_gpo_enabled|as_crispy_field }}
+                        {{ form.advanced_gpo_mode_1|as_crispy_field }}
+                        {{ form.advanced_gpo_mode_2|as_crispy_field }}
+                        {{ form.advanced_gpo_mode_3|as_crispy_field }}
+                        {{ form.backup_to_flash_drive_on_gpi_event_enabled|as_crispy_field }}
+                        {{ form.max_tx_power_on_gpi_event_enabled|as_crispy_field }}
+                        {{ form.backup_to_internal_flash_enabled|as_crispy_field }}
+                        {{ form.tag_validation_enabled|as_crispy_field }}
+                        {{ form.keep_filename_on_day_change|as_crispy_field }}
+                        {{ form.prompt_before_changing|as_crispy_field }}
+                        {{ form.connection_status|as_crispy_field }}
+                        {{ form.truncate_epc|as_crispy_field }}
+                        {{ form.truncate_start|as_crispy_field }}
+                        {{ form.truncate_len|as_crispy_field }}
+                        {{ form.usb_flash_drive|as_crispy_field }}
+                        {{ form.low_duty_cycle_enabled|as_crispy_field }}
+                        {{ form.empty_field_timeout|as_crispy_field }}
+                        {{ form.field_ping_interval|as_crispy_field }}
+                        {{ form.baud_rate|as_crispy_field }}
+                        {{ form.c1g2_filter_enabled|as_crispy_field }}
+                        {{ form.c1g2_filter_bank|as_crispy_field }}
+                        {{ form.c1g2_filter_pointer|as_crispy_field }}
+                        {{ form.c1g2_filter_mask|as_crispy_field }}
+                        {{ form.c1g2_filter_len|as_crispy_field }}
+                        {{ form.c1g2_filter_match_option|as_crispy_field }}
+                        {{ form.data_prefix|as_crispy_field }}
+                        {{ form.data_suffix|as_crispy_field }}
+                        {{ form.site_enabled|as_crispy_field }}
+                        {{ form.site|as_crispy_field }}
+                        {{ form.heartbeat_enabled|as_crispy_field }}
+                        {{ form.heartbeat_period_sec|as_crispy_field }}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">Save</button>
+    </form>
+</div>
+{% endblock %}

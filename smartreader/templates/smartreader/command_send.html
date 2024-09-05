@@ -1,0 +1,31 @@
+<!-- smartreader/templates/smartreader/command_send.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>Send Command to SmartReaders</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="command_template">Command Template</label>
+            <select name="command_template" id="command_template" class="form-control">
+                {% for template in command_templates %}
+                <option value="{{ template.id }}">{{ template.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="smartreaders">SmartReaders</label>
+            <select name="smartreaders" id="smartreaders" class="form-control" multiple>
+                {% for smartreader in smartreaders %}
+                <option value="{{ smartreader.id }}">{{ smartreader.name }} - {{ smartreader.reader_serial }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Send Command</button>
+    </form>
+</div>
+{% endblock %}

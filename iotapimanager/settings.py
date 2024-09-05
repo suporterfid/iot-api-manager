@@ -20,6 +20,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SITE_NAME = 'Reader Manager'
 
+MQTT_BROKER_URL = os.environ.get('MQTT_BROKER_URL', 'localhost')
+MQTT_BROKER_PORT = int(os.environ.get('MQTT_BROKER_PORT', 1883))
+MQTT_KEEPALIVE_INTERVAL = int(os.environ.get('MQTT_KEEPALIVE_INTERVAL', 60))
+MQTT_USERNAME = os.environ.get('MQTT_USERNAME', '')
+MQTT_PASSWORD = os.environ.get('MQTT_PASSWORD', '')
+MQTT_USE_TLS = bool(int(os.environ.get('MQTT_USE_TLS', '0')))
+MQTT_TLS_CA_CERTS = os.environ.get('MQTT_TLS_CA_CERTS', '')
+
 # Use the environment variables to configure the database connection
 DATABASES = {
     'default': {
@@ -64,7 +72,7 @@ LOGGING = {
     'loggers': {
         'django': {
             'handlers': ['console', 'logstash'],
-            'level': 'DEBUG',
+            'level': 'INFO',
             'propagate': True,
         },
         'iotapimanager': {
@@ -90,6 +98,10 @@ CELERY_BEAT_SCHEDULE = {
 
 CELERY_BROKER_URL = 'amqp://user:password@rabbitmq:5672//'
 CELERY_RESULT_BACKEND = 'rpc://'  
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
 
 CELERY_TASK_QUEUES = (
     Queue('default', Exchange('default'), routing_key='default'),
@@ -143,8 +155,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_celery_beat',
+    'crispy_forms',
+    'crispy_bootstrap5',
     'readers',
+    'smartreader',
+
 ]
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -155,6 +174,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
 ROOT_URLCONF = 'iotapimanager.urls'
 

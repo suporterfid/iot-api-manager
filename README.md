@@ -62,7 +62,7 @@ docker-compose exec web python manage.py migrate
 
 To create an admin user:
 ```bash
-docker-compose exec web python manage.py createsuperuser
+docker-compose exec web python manage.py createsuperuser --username=admin --email=admin@example.com --noinput
 ```
 Follow the prompts to create your superuser account.
 

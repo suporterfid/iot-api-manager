@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>MQTT Command Templates</h2>
+    <a href="{% url 'mqttcommandtemplate_create' %}" class="btn btn-success mb-3"><i class="fas fa-plus"></i> Add New Template</a>
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Created At</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for template in object_list %}
+            <tr>
+                <td>{{ template.name }}</td>
+                <td>{{ template.description }}</td>
+                <td>{{ template.created_at }}</td>
+                <td>
+                    <a href="{% url 'mqttcommandtemplate_detail' template.id %}" class="btn btn-info btn-sm"><i class="fas fa-eye"></i></a>
+                    <a href="{% url 'mqttcommandtemplate_update' template.id %}" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></a>
+                    <a href="{% url 'mqttcommandtemplate_delete' template.id %}" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

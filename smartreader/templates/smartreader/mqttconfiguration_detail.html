@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>MQTT Configuration Details</h2>
+    <a href="{% url 'mqttconfiguration_update' configuration.id %}" class="btn btn-warning mb-3"><i class="fas fa-edit"></i> Edit</a>
+    <a href="{% url 'mqttconfiguration_list' %}" class="btn btn-secondary mb-3"><i class="fas fa-arrow-left"></i> Back to List</a>
+
+    <table class="table table-bordered">
+        <tr>
+            <th>ID</th>
+            <td>{{ configuration.id }}</td>
+        </tr>
+        <tr>
+            <th>Broker Hostname</th>
+            <td>{{ configuration.broker_hostname }}</td>
+        </tr>
+        <tr>
+            <th>Broker Port</th>
+            <td>{{ configuration.broker_port }}</td>
+        </tr>
+        <tr>
+            <th>MQTT Enabled</th>
+            <td>{{ configuration.enable_mqtt }}</td>
+        </tr>
+        <tr>
+            <th>MQTT Use SSL</th>
+            <td>{{ configuration.mqtt_use_ssl }}</td>
+        </tr>
+        <tr>
+            <th>MQTT SSL CA Certificate</th>
+            <td>{{ configuration.mqtt_ssl_ca_certificate }}</td>
+        </tr>
+        <tr>
+            <th>MQTT SSL Client Certificate</th>
+            <td>{{ configuration.mqtt_ssl_client_certificate }}</td>
+        </tr>
+        <tr>
+            <th>MQTT SSL Client Certificate Password</th>
+            <td>{{ configuration.mqtt_ssl_client_certificate_password }}</td>
+        </tr>
+        <tr>
+            <th>MQTT Broker Name</th>
+            <td>{{ configuration.mqtt_broker_name }}</td>
+        </tr>
+        <tr>
+            <th>MQTT Broker Address</th>
+            <td>{{ configuration.mqtt_broker_address }}</td>
+        </tr>
+        <tr>
+            <th>MQTT Broker Port</th>
+            <td>{{ configuration.mqtt_broker_port }}</td>
+        </tr>
+        <tr>
+            <th>MQTT Broker Clean Session</th>
+            <td>{{ configuration.mqtt_broker_clean_session }}</td>
+        </tr>
+        <tr>
+            <th>MQTT Broker Keep Alive</th>
+            <td>{{ configuration.mqtt_broker_keep_alive }}</td>
+        </tr>
+        <tr>
+            <th>MQTT Broker Debug</th>
+            <td>{{ configuration.mqtt_broker_debug }}</td>
+        </tr>
+        <tr>
+            <th>MQTT Tag Events Topic</th>
+            <td>{{ configuration.mqtt_tag_events_topic }}</td>
+        </tr>
+        <tr>
+            <th>MQTT Tag Events QoS</th>
+            <td>{{ configuration.mqtt_tag_events_qos }}</td>
+        </tr>
+        <tr>
+            <th>MQTT Tag Events Retain Messages</th>
+            <td>{{ configuration.mqtt_tag_events_retain_messages }}</td>
+        </tr>
+        <tr>
+            <th>MQTT Management Events Topic</th>
+            <td>{{ configuration.mqtt_management_events_topic }}</td>
+        </tr>
+        <tr>
+            <th>MQTT Management Events QoS</th>
+            <td>{{ configuration.mqtt_management_events_qos }}</td>
+        </tr>
+        <tr>
+            <th>MQTT Management Events Retain Messages</th>
+            <td>{{ configuration.mqtt_management_events_retain_messages }}</td>
+        </tr>
+        <tr>
+            <th>MQTT Metric Events Topic</th>
+            <td>{{ configuration.mqtt_metric_events_topic }}</td>
+        </tr>
+        <tr>
+            <th>MQTT Metric Events QoS</th>
+            <td>{{ configuration.mqtt_metric_events_qos }}</td>
+        </tr>
+        <tr>
+            <th>MQTT Metric Events Retain Messages</th>
+            <td>{{ configuration.mqtt_metric_events_retain_messages }}</td>
+        </tr>
+        <tr>
+            <th>MQTT Management Command Topic</th>
+            <td>{{ configuration.mqtt_management_command_topic }}</td>
+        </tr>
+        <tr>
+            <th>MQTT Management Command QoS</th>
+            <td>{{ configuration.mqtt_management_command_qos }}</td>
+        </tr>
+        <tr>
+            <th>MQTT Management Command Retain Messages</th>
+            <td>{{ configuration.mqtt_management_command_retain_messages }}</td>
+        </tr>
+        <tr>
+            <th>MQTT Management Response Topic</th>
+            <td>{{ configuration.mqtt_management_response_topic }}</td>
+        </tr>
+        <tr>
+            <th>MQTT Management Response QoS</th>
+            <td>{{ configuration.mqtt_management_response_qos }}</td>
+        </tr>
+        <tr>
+            <th>MQTT Management Response Retain Messages</th>
+            <td>{{ configuration.mqtt_management_response_retain_messages }}</td>
+        </tr>
+        <tr>
+            <th>MQTT Control Command Topic</th>
+            <td>{{ configuration.mqtt_control_command_topic }}</td>
+        </tr>
+        <tr>
+            <th>MQTT Control Command QoS</th>
+            <td>{{ configuration.mqtt_control_command_qos }}</td>
+        </tr>
+        <tr>
+            <th>MQTT Control Command Retain Messages</th>
+            <td>{{ configuration.mqtt_control_command_retain_messages }}</td>
+        </tr>
+        <tr>
+            <th>MQTT Control Response Topic</th>
+            <td>{{ configuration.mqtt_control_response_topic }}</td>
+        </tr>
+        <tr>
+            <th>MQTT Control Response QoS</th>
+            <td>{{ configuration.mqtt_control_response_qos }}</td>
+        </tr>
+        <tr>
+            <th>MQTT Control Response Retain Messages</th>
+            <td>{{ configuration.mqtt_control_response_retain_messages }}</td>
+        </tr>
+        <tr>
+            <th>MQTT LWT Topic</th>
+            <td>{{ configuration.mqtt_lwt_topic }}</td>
+        </tr>
+        <tr>
+            <th>MQTT LWT QoS</th>
+            <td>{{ configuration.mqtt_lwt_qos }}</td>
+        </tr>
+        <tr>
+            <th>MQTT Username</th>
+            <td>{{ configuration.mqtt_username }}</td>
+        </tr>
+        <tr>
+            <th>MQTT Password</th>
+            <td>{{ configuration.mqtt_password }}</td>
+        </tr>
+        <tr>
+            <th>Enable SmartReader Default Topics</th>
+            <td>{{ configuration.mqtt_enable_smartreader_default_topics }}</td>
+        </tr>
+        <tr>
+            <th>Enable Batch List Reporting</th>
+            <td>{{ configuration.enable_batch_list_reporting }}</td>
+        </tr>
+        <tr>
+            <th>Clear Batch List on Reload Operation</th>
+            <td>{{ configuration.clear_batch_list_on_reload }}</td>
+        </tr>
+        <tr>
+            <th>Publish Batch List On-Change</th>
+            <td>{{ configuration.publish_batch_list_on_change }}</td>
+        </tr>
+        <tr>
+            <th>Publish Batch List On-Change Interval (seconds)</th>
+            <td>{{ configuration.publish_batch_list_on_change_interval }}</td>
+        </tr>
+        <tr>
+            <th>Enable Publish Interval for Batch Lists</th>
+            <td>{{ configuration.enable_publish_interval_for_batch_lists }}</td>
+        </tr>
+        <tr>
+            <th>Publish Interval (seconds)</th>
+            <td>{{ configuration.publish_interval }}</td>
+        </tr>
+        <tr>
+            <th>Filter Batch Updates Based on Antenna Zone Grouping</th>
+            <td>{{ configuration.filter_batch_updates_based_on_antenna_zone_grouping }}</td>
+        </tr>
+    </table>
+</div>
+{% endblock %}
