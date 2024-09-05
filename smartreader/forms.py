@@ -692,7 +692,113 @@ class SmartReaderForm(forms.ModelForm):
         required=False,
         widget=forms.CheckboxInput()
     )
-    
+    site = forms.CharField(
+    label='Site',
+    required=False,
+    widget=forms.TextInput(attrs={'placeholder': 'Enter Site'})
+    )
+
+    site_enabled = forms.BooleanField(
+        label='Site Enabled',
+        required=False,
+        widget=forms.CheckboxInput()
+    )
+
+    low_duty_cycle_enabled = forms.BooleanField(
+        label='Low Duty Cycle Enabled',
+        required=False,
+        widget=forms.CheckboxInput()
+    )
+
+    empty_field_timeout = forms.IntegerField(
+        label='Empty Field Timeout',
+        required=False,
+        widget=forms.NumberInput(attrs={'placeholder': 'Enter Empty Field Timeout'})
+    )
+
+    field_ping_interval = forms.IntegerField(
+        label='Field Ping Interval',
+        required=False,
+        widget=forms.NumberInput(attrs={'placeholder': 'Enter Field Ping Interval'})
+    )
+
+    usb_flash_drive = forms.BooleanField(
+        label='USB Flash Drive',
+        required=False,
+        widget=forms.CheckboxInput()
+    )
+
+    serial_port = forms.CharField(
+        label='Serial Port',
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': 'Enter Serial Port'})
+    )
+
+    usb_hid = forms.BooleanField(
+        label='USB HID',
+        required=False,
+        widget=forms.CheckboxInput()
+    )
+
+    data_prefix = forms.CharField(
+        label='Data Prefix',
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': 'Enter Data Prefix'})
+    )
+
+    data_suffix = forms.CharField(
+        label='Data Suffix',
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': 'Enter Data Suffix'})
+    )
+
+    truncate_epc = forms.BooleanField(
+        label='Truncate EPC',
+        required=False,
+        widget=forms.CheckboxInput()
+    )
+
+    truncate_start = forms.IntegerField(
+        label='Truncate Start',
+        required=False,
+        widget=forms.NumberInput(attrs={'placeholder': 'Enter Truncate Start'})
+    )
+
+    truncate_len = forms.IntegerField(
+        label='Truncate Length',
+        required=False,
+        widget=forms.NumberInput(attrs={'placeholder': 'Enter Truncate Length'})
+    )
+
+    http_verify_host = forms.BooleanField(
+        label='HTTP Verify Host',
+        required=False,
+        widget=forms.CheckboxInput()
+    )
+
+    http_verify_peer = forms.BooleanField(
+        label='HTTP Verify Peer',
+        required=False,
+        widget=forms.CheckboxInput()
+    )
+
+    max_tx_power_on_gpi_event_enabled = forms.BooleanField(
+        label='Max TX Power on GPI Event Enabled',
+        required=False,
+        widget=forms.CheckboxInput()
+    )
+
+    tag_validation_enabled = forms.BooleanField(
+        label='Tag Validation Enabled',
+        required=False,
+        widget=forms.CheckboxInput()
+    )
+
+    prompt_before_changing = forms.BooleanField(
+        label='Prompt Before Changing',
+        required=False,
+        widget=forms.CheckboxInput()
+    )
     ip_address_mode = forms.CharField(
         label='IP Address Mode',
         widget=forms.TextInput(attrs={'placeholder': 'Enter IP Address Mode'})

@@ -21,10 +21,34 @@
                 <div id="collapseGeneral" class="accordion-collapse collapse show" aria-labelledby="headingGeneral" data-bs-parent="#smartreaderAccordion">
                     <div class="accordion-body">
                         {{ form.reader_name|as_crispy_field }}
+                        {{ form.reader_serial|as_crispy_field }}
+                        {{ form.status|as_crispy_field }}
                         {{ form.is_enabled|as_crispy_field }}
                         {{ form.license_key|as_crispy_field }}
                         {{ form.profile_name|as_crispy_field }}
                         {{ form.is_current_profile|as_crispy_field }}
+                        {{ form.site|as_crispy_field }}
+                        {{ form.site_enabled|as_crispy_field }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- RFID Settings -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingRFID">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRFID" aria-expanded="false" aria-controls="collapseRFID">
+                        RFID Settings
+                    </button>
+                </h2>
+                <div id="collapseRFID" class="accordion-collapse collapse" aria-labelledby="headingRFID" data-bs-parent="#smartreaderAccordion">
+                    <div class="accordion-body">
+                        {{ form.reader_mode|as_crispy_field }}
+                        {{ form.search_mode|as_crispy_field }}
+                        {{ form.session|as_crispy_field }}
+                        {{ form.tag_population|as_crispy_field }}
+                        {{ form.low_duty_cycle_enabled|as_crispy_field }}
+                        {{ form.empty_field_timeout|as_crispy_field }}
+                        {{ form.field_ping_interval|as_crispy_field }}
                     </div>
                 </div>
             </div>
@@ -70,26 +94,81 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Network Settings -->
             <div class="accordion-item">
-                <h2 class="accordion-header" id="headingNetwork">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNetwork" aria-expanded="false" aria-controls="collapseNetwork">
-                        Network Settings
+                <h2 class="accordion-header" id="headingReporting">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseReporting" aria-expanded="false" aria-controls="collapseReporting">
+                        Reporting
                     </button>
                 </h2>
-                <div id="collapseNetwork" class="accordion-collapse collapse" aria-labelledby="headingNetwork" data-bs-parent="#smartreaderAccordion">
+                <div id="collapseReporting" class="accordion-collapse collapse" aria-labelledby="headingReporting" data-bs-parent="#smartreaderAccordion">
+                    <div class="accordion-body">
+                        {{ form.tag_cache_size|as_crispy_field }}
+                        {{ form.reporting_interval_seconds|as_crispy_field }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingPositioning">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePositioning" aria-expanded="false" aria-controls="collapsePositioning">
+                        Positioning Settings
+                    </button>
+                </h2>
+                <div id="collapsePositioning" class="accordion-collapse collapse" aria-labelledby="headingPositioning" data-bs-parent="#smartreaderAccordion">
+                    <div class="accordion-body">
+                        {{ form.positioning_epcs_enabled|as_crispy_field }}
+                        {{ form.positioning_antenna_ports|as_crispy_field }}
+                        {{ form.positioning_epcs_header_list|as_crispy_field }}
+                        {{ form.positioning_epcs_filter|as_crispy_field }}
+                        {{ form.positioning_expiration_in_sec|as_crispy_field }}
+                        {{ form.positioning_report_interval_in_sec|as_crispy_field }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingValidation">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseValidation" aria-expanded="false" aria-controls="collapseValidation">
+                        Validation Settings
+                    </button>
+                </h2>
+                <div id="collapseValidation" class="accordion-collapse collapse" aria-labelledby="headingValidation" data-bs-parent="#smartreaderAccordion">
+                    <div class="accordion-body">
+                        {{ form.group_events_on_inventory_status|as_crispy_field }}
+                        {{ form.enable_validation|as_crispy_field }}
+                        {{ form.require_unique_product_code|as_crispy_field }}
+                    </div>
+                </div>
+            </div>
+            <!-- TCP Socket Settings -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingSocket">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSocket" aria-expanded="false" aria-controls="collapseSocket">
+                        TCP Socket Settings
+                    </button>
+                </h2>
+                <div id="collapseSocket" class="accordion-collapse collapse" aria-labelledby="headingSocket" data-bs-parent="#smartreaderAccordion">
                     <div class="accordion-body">
                         {{ form.socket_server|as_crispy_field }}
                         {{ form.socket_port|as_crispy_field }}
                         {{ form.socket_command_server|as_crispy_field }}
                         {{ form.socket_command_server_port|as_crispy_field }}
-                        {{ form.udp_server|as_crispy_field }}
-                        {{ form.udp_ip_address|as_crispy_field }}
-                        {{ form.udp_reader_port|as_crispy_field }}
-                        {{ form.udp_remote_ip_address|as_crispy_field }}
-                        {{ form.udp_remote_port|as_crispy_field }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- USB Data Settings -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingUSB">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseUSB" aria-expanded="false" aria-controls="collapseUSB">
+                        USB Data Settings
+                    </button>
+                </h2>
+                <div id="collapseUSB" class="accordion-collapse collapse" aria-labelledby="headingUSB" data-bs-parent="#smartreaderAccordion">
+                    <div class="accordion-body">
+                        {{ form.usb_flash_drive|as_crispy_field }}
                         {{ form.serial_port|as_crispy_field }}
+                        {{ form.baud_rate|as_crispy_field }}
                         {{ form.usb_hid|as_crispy_field }}
                     </div>
                 </div>
@@ -110,6 +189,29 @@
                         {{ form.software_filter_read_count_timeout_enabled|as_crispy_field }}
                         {{ form.software_filter_read_count_timeout_seen_count|as_crispy_field }}
                         {{ form.software_filter_read_count_timeout_interval_in_sec|as_crispy_field }}
+                        {{ form.software_filter_include_epcs_header_list_enabled|as_crispy_field }}
+                        {{ form.software_filter_include_epcs_header_list|as_crispy_field }}                       
+                        {{ form.tag_presence_timeout_enabled|as_crispy_field }}
+                        {{ form.tag_presence_timeout_in_sec|as_crispy_field }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- C1G2 Filter Settings -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingC1G2Filter">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseC1G2Filter" aria-expanded="false" aria-controls="collapseC1G2Filter">
+                        C1G2 Filter Settings
+                    </button>
+                </h2>
+                <div id="collapseC1G2Filter" class="accordion-collapse collapse" aria-labelledby="headingC1G2Filter" data-bs-parent="#smartreaderAccordion">
+                    <div class="accordion-body">                       
+                        {{ form.c1g2_filter_enabled|as_crispy_field }}
+                        {{ form.c1g2_filter_bank|as_crispy_field }}
+                        {{ form.c1g2_filter_pointer|as_crispy_field }}
+                        {{ form.c1g2_filter_mask|as_crispy_field }}
+                        {{ form.c1g2_filter_len|as_crispy_field }}
+                        {{ form.c1g2_filter_match_option|as_crispy_field }}
                     </div>
                 </div>
             </div>
@@ -123,6 +225,8 @@
                 </h2>
                 <div id="collapseInclude" class="accordion-collapse collapse" aria-labelledby="headingInclude" data-bs-parent="#smartreaderAccordion">
                     <div class="accordion-body">
+                        {{ form.site_enabled|as_crispy_field }}
+                        {{ form.site|as_crispy_field }}
                         {{ form.include_reader_name|as_crispy_field }}
                         {{ form.include_antenna_port|as_crispy_field }}
                         {{ form.include_antenna_zone|as_crispy_field }}
@@ -144,7 +248,80 @@
                     </div>
                 </div>
             </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingBarcode">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBarcode" aria-expanded="false" aria-controls="collapseBarcode">
+                        Barcode Settings
+                    </button>
+                </h2>
+                <div id="collapseBarcode" class="accordion-collapse collapse" aria-labelledby="headingBarcode" data-bs-parent="#smartreaderAccordion">
+                    <div class="accordion-body">
+                        {{ form.enable_barcode_hid|as_crispy_field }}
+                        {{ form.enable_barcode_serial|as_crispy_field }}
+                        {{ form.enable_barcode_tcp|as_crispy_field }}
+                        {{ form.barcode_tcp_address|as_crispy_field }}
+                        {{ form.barcode_tcp_port|as_crispy_field }}
+                        {{ form.barcode_line_end|as_crispy_field }}
+                        {{ form.barcode_no_data_string|as_crispy_field }}
+                    </div>
+                </div>
+            </div>
 
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingDataFormat">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDataFormat" aria-expanded="false" aria-controls="collapseDataFormat">
+                        Data Format Settings
+                    </button>
+                </h2>
+                <div id="collapseDataFormat" class="accordion-collapse collapse" aria-labelledby="headingDataFormat" data-bs-parent="#smartreaderAccordion">
+                    <div class="accordion-body">
+                        {{ form.csv_file_format|as_crispy_field }}
+
+                        {{ form.data_prefix|as_crispy_field }}
+                        {{ form.data_suffix|as_crispy_field }}
+
+                        {{ form.truncate_epc|as_crispy_field }}
+                        {{ form.truncate_start|as_crispy_field }}
+                        {{ form.truncate_len|as_crispy_field }}
+                        
+                        <div class="mb-3">
+                            <h5>Custom Field 1</h5>
+                            {{ form.custom_field_1_enabled|as_crispy_field }}
+                            {{ form.custom_field_1_name|as_crispy_field }}
+                            {{ form.custom_field_1_value|as_crispy_field }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <h5>Custom Field 2</h5>
+                            {{ form.custom_field_2_enabled|as_crispy_field }}
+                            {{ form.custom_field_2_name|as_crispy_field }}
+                            {{ form.custom_field_2_value|as_crispy_field }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <h5>Custom Field 3</h5>
+                            {{ form.custom_field_3_enabled|as_crispy_field }}
+                            {{ form.custom_field_3_name|as_crispy_field }}
+                            {{ form.custom_field_3_value|as_crispy_field }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <h5>Custom Field 4</h5>
+                            {{ form.custom_field_4_enabled|as_crispy_field }}
+                            {{ form.custom_field_4_name|as_crispy_field }}
+                            {{ form.custom_field_4_value|as_crispy_field }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <h5>SGTIN Parsing</h5>
+                            {{ form.parse_sgtin_enabled|as_crispy_field }}
+                            {{ form.parse_sgtin_include_key_type|as_crispy_field }}
+                            {{ form.parse_sgtin_include_serial|as_crispy_field }}
+                            {{ form.parse_sgtin_include_pure_identity|as_crispy_field }}
+                        </div>
+                    </div>
+                </div>
+            </div>
             <!-- MQTT Settings -->
             <div class="accordion-item">
                 <h2 class="accordion-header" id="headingMQTT">
@@ -196,6 +373,38 @@
                 </div>
             </div>
 
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingOutput">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOutput" aria-expanded="false" aria-controls="collapseOutput">
+                        UDP Output Settings
+                    </button>
+                </h2>
+                <div id="collapseOutput" class="accordion-collapse collapse" aria-labelledby="headingOutput" data-bs-parent="#smartreaderAccordion">
+                    <div class="accordion-body">
+                        {{ form.udp_server|as_crispy_field }}
+                        {{ form.udp_ip_address|as_crispy_field }}
+                        {{ form.udp_reader_port|as_crispy_field }}
+                        {{ form.udp_remote_ip_address|as_crispy_field }}
+                        {{ form.udp_remote_port|as_crispy_field }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stream Settings -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingOutput">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOutput" aria-expanded="false" aria-controls="collapseOutput">
+                        Local Tag Stream Settings
+                    </button>
+                </h2>
+                <div id="collapseOutput" class="accordion-collapse collapse" aria-labelledby="headingOutput" data-bs-parent="#smartreaderAccordion">
+                    <div class="accordion-body">
+                        {{ form.enable_summary_stream|as_crispy_field }}
+                        {{ form.enable_tag_event_stream|as_crispy_field }}
+                    </div>
+                </div>
+            </div>
+
             <!-- HTTP Settings -->
             <div class="accordion-item">
                 <h2 class="accordion-header" id="headingHTTP">
@@ -208,6 +417,9 @@
                         {{ form.http_post_enabled|as_crispy_field }}
                         {{ form.http_post_interval_sec|as_crispy_field }}
                         {{ form.http_post_url|as_crispy_field }}
+                        {{ form.http_post_type|as_crispy_field }}
+                        {{ form.http_verify_host|as_crispy_field }}
+                        {{ form.http_verify_peer|as_crispy_field }}
                         {{ form.http_authentication_type|as_crispy_field }}
                         {{ form.http_authentication_username|as_crispy_field }}
                         {{ form.http_authentication_password|as_crispy_field }}
@@ -222,6 +434,38 @@
                 </div>
             </div>
 
+            <!-- Advanced GPO -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingAdvancedGPO">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvancedGPO" aria-expanded="false" aria-controls="collapseAdvancedGPO">
+                        Advanced GPO
+                    </button>
+                </h2>
+                <div id="collapseAdvancedGPO" class="accordion-collapse collapse" aria-labelledby="headingAdvancedGPO" data-bs-parent="#smartreaderAccordion">
+                    <div class="accordion-body">
+                        {{ form.advanced_gpo_enabled|as_crispy_field }}
+                        {{ form.advanced_gpo_mode_1|as_crispy_field }}
+                        {{ form.advanced_gpo_mode_2|as_crispy_field }}
+                        {{ form.advanced_gpo_mode_3|as_crispy_field }}                     
+                    </div>
+                </div>
+            </div>
+
+            <!-- Heartbeat Settings -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingHeartbeat">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseHeartbeat" aria-expanded="false" aria-controls="collapseHeartbeat">
+                        Heartbeat Settings
+                    </button>
+                </h2>
+                <div id="collapseHeartbeat" class="accordion-collapse collapse" aria-labelledby="headingHeartbeat" data-bs-parent="#smartreaderAccordion">
+                    <div class="accordion-body">                       
+                        {{ form.heartbeat_enabled|as_crispy_field }}
+                        {{ form.heartbeat_period_sec|as_crispy_field }}
+                    </div>
+                </div>
+            </div>
+
             <!-- Advanced Settings -->
             <div class="accordion-item">
                 <h2 class="accordion-header" id="headingAdvanced">
@@ -230,38 +474,43 @@
                     </button>
                 </h2>
                 <div id="collapseAdvanced" class="accordion-collapse collapse" aria-labelledby="headingAdvanced" data-bs-parent="#smartreaderAccordion">
-                    <div class="accordion-body">
-                        {{ form.advanced_gpo_enabled|as_crispy_field }}
-                        {{ form.advanced_gpo_mode_1|as_crispy_field }}
-                        {{ form.advanced_gpo_mode_2|as_crispy_field }}
-                        {{ form.advanced_gpo_mode_3|as_crispy_field }}
-                        {{ form.backup_to_flash_drive_on_gpi_event_enabled|as_crispy_field }}
+                    <div class="accordion-body">                       
                         {{ form.max_tx_power_on_gpi_event_enabled|as_crispy_field }}
                         {{ form.backup_to_internal_flash_enabled|as_crispy_field }}
-                        {{ form.tag_validation_enabled|as_crispy_field }}
+                        {{ form.backup_to_flash_drive_on_gpi_event_enabled|as_crispy_field }}
                         {{ form.keep_filename_on_day_change|as_crispy_field }}
+                        {{ form.tag_validation_enabled|as_crispy_field }}                       
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingPlugin">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePlugin" aria-expanded="false" aria-controls="collapsePlugin">
+                        Plugin Settings
+                    </button>
+                </h2>
+                <div id="collapsePlugin" class="accordion-collapse collapse" aria-labelledby="headingPlugin" data-bs-parent="#smartreaderAccordion">
+                    <div class="accordion-body">
+                        {{ form.active_plugin|as_crispy_field }}
+                        {{ form.plugin_server|as_crispy_field }}
+                        {{ form.enable_plugin_shipment_verification|as_crispy_field }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingSystem">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSystem" aria-expanded="false" aria-controls="collapseSystem">
+                        System Settings
+                    </button>
+                </h2>
+                <div id="collapseSystem" class="accordion-collapse collapse" aria-labelledby="headingSystem" data-bs-parent="#smartreaderAccordion">
+                    <div class="accordion-body">
                         {{ form.prompt_before_changing|as_crispy_field }}
-                        {{ form.connection_status|as_crispy_field }}
-                        {{ form.truncate_epc|as_crispy_field }}
-                        {{ form.truncate_start|as_crispy_field }}
-                        {{ form.truncate_len|as_crispy_field }}
-                        {{ form.usb_flash_drive|as_crispy_field }}
-                        {{ form.low_duty_cycle_enabled|as_crispy_field }}
-                        {{ form.empty_field_timeout|as_crispy_field }}
-                        {{ form.field_ping_interval|as_crispy_field }}
-                        {{ form.baud_rate|as_crispy_field }}
-                        {{ form.c1g2_filter_enabled|as_crispy_field }}
-                        {{ form.c1g2_filter_bank|as_crispy_field }}
-                        {{ form.c1g2_filter_pointer|as_crispy_field }}
-                        {{ form.c1g2_filter_mask|as_crispy_field }}
-                        {{ form.c1g2_filter_len|as_crispy_field }}
-                        {{ form.c1g2_filter_match_option|as_crispy_field }}
-                        {{ form.data_prefix|as_crispy_field }}
-                        {{ form.data_suffix|as_crispy_field }}
-                        {{ form.site_enabled|as_crispy_field }}
-                        {{ form.site|as_crispy_field }}
-                        {{ form.heartbeat_enabled|as_crispy_field }}
-                        {{ form.heartbeat_period_sec|as_crispy_field }}
+                        {{ form.system_disable_image_fallback_status|as_crispy_field }}
+                        {{ form.system_image_upgrade_url|as_crispy_field }}
+                        {{ form.smartreader_enabled_for_management_only|as_crispy_field }}
                     </div>
                 </div>
             </div>

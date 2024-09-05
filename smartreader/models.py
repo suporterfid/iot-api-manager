@@ -309,7 +309,6 @@ class SmartReader(models.Model):
     http_verify_host = models.BooleanField(default=False)
     http_verify_peer = models.BooleanField(default=False)
     http_verify_post_http_return_code = models.BooleanField(default=False)
-
     include_antenna_port = models.BooleanField(default=True)
     include_antenna_zone = models.BooleanField(default=False)
     include_first_seen_timestamp = models.BooleanField(default=True)
