@@ -1,6 +1,6 @@
 import json
 from django.utils.dateparse import parse_datetime
-from readers.models import Reader, TagEvent
+from apps.readers.models import Reader, TagEvent
 from .models import Smartreader, StatusEvent, ConnectionEvent, DisconnectionEvent, InventoryStatusEvent, GPIEvent, AntennaStatus, HeartbeatEvent, Alert
 from datetime import datetime
 from django.utils import timezone

@@ -1,7 +1,7 @@
 # smartreader/tasks.py
 from celery import shared_task
 from .models import SmartReader, MQTTCommand, MqttCommandTemplate, StatusEvent, AlertRule, Alert
-from readers.models import TagEvent
+from apps.readers.models import TagEvent
 import paho.mqtt as mqtt
 import paho.mqtt.publish as publish
 from django.conf import settings
