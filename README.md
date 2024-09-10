@@ -86,7 +86,7 @@ version: '3.8'
 services:
   web:
     build: .
-    command: gunicorn iotapimanager.wsgi:application --bind 0.0.0.0:8000
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - .:/app
     ports:
@@ -119,7 +119,7 @@ services:
 
   worker:
     build: .
-    command: celery -A iotapimanager worker -l info
+    command: celery -A config worker -l info
     volumes:
       - .:/app
     env_file:

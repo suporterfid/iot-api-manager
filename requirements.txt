@@ -14,3 +14,4 @@ logstash-formatter==0.5.17
 elasticsearch>=7.0.0,<8.0.0
 paho-mqtt==1.6.1
 django-formtools>=2.3
+whitenoise==6.7.0

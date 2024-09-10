@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils import timezone
-from readers.models import Reader
+from apps.readers.models import Reader
 from .json_utils import json_field  # Importando o decorator do utils.py
 from django.contrib.auth.models import User
 import uuid

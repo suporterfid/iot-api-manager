@@ -5,8 +5,8 @@ import json
 import logging
 from django.conf import settings
 from django.utils import timezone
-from readers.models import Reader, TagEvent, SmartReader
-from smartreader.models import MQTTConfiguration, MQTTCommand, StatusEvent, ConnectionEvent, DisconnectionEvent, InventoryStatusEvent, HeartbeatEvent, GPIEvent
+from apps.readers.models import Reader, TagEvent, SmartReader
+from apps.smartreader.models import MQTTConfiguration, MQTTCommand, StatusEvent, ConnectionEvent, DisconnectionEvent, InventoryStatusEvent, HeartbeatEvent, GPIEvent
 from .utils import parse_status_event
 from .utils import execute_alerts_for_event
 from .utils import process_tag_event_data
