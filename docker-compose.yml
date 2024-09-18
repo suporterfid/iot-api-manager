@@ -1,12 +1,7 @@
 services:
   web:
     build: .
-    command: >
-      sh -c "python manage.py makemigrations && 
-             python manage.py migrate &&
-             python manage.py makemessages -l en -l pt_BR &&
-             python manage.py compilemessages -l en -l pt_BR &&
-             exec gunicorn --workers 3 --bind 0.0.0.0:8000 config.wsgi:application"
+    entrypoint: /app/entrypoint.sh
     volumes:
       - .:/app
       - ./data/web/static:/data/web/static
@@ -21,21 +16,15 @@ services:
       - rabbitmq
       - mosquitto
       - logstash
-    environment:
-      - DJANGO_SUPERUSER_USERNAME=admin
-      - DJANGO_SUPERUSER_EMAIL=admin@example.com
-      - DJANGO_SUPERUSER_PASSWORD=123456
     networks:
       - app_network
 
   db:
     image: postgres:13
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
-    environment:
-      POSTGRES_DB: django_db
-      POSTGRES_USER: django_user
-      POSTGRES_PASSWORD: django_password
+      - ./data/postgres/data:/var/lib/postgresql/data/
+    env_file:
+      - .env
     ports:
       - "5432:5432"
     networks:
@@ -43,9 +32,8 @@ services:
 
   rabbitmq:
     image: rabbitmq:3-management
-    environment:
-      RABBITMQ_DEFAULT_USER: user
-      RABBITMQ_DEFAULT_PASS: password
+    env_file:
+      - .env
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -58,8 +46,8 @@ services:
       - "1883:1883"
       - "9001:9001"
     volumes:
-      - mosquitto_data:/mosquitto/data
-      - mosquitto_logs:/mosquitto/log
+      - ./data/mosquitto/data:/mosquitto/data
+      - ./data/mosquitto/logs:/mosquitto/log
     networks:
       - app_network
 
@@ -71,14 +59,14 @@ services:
     ports:
       - "9200:9200"
     volumes:
-      - es_data:/usr/share/elasticsearch/data
+      - ./data/es_data:/usr/share/elasticsearch/data
     networks:
       - app_network
 
   logstash:
     image: docker.elastic.co/logstash/logstash:7.17.9
     volumes:
-      - ./logstash/pipeline:/usr/share/logstash/pipeline
+      - ./srv/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
     ports:
       - "5044:5044"
       - "9600:9600"
@@ -104,8 +92,8 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./ssl:/etc/nginx/ssl
+      - ./srv/nginx.conf:/etc/nginx/nginx.conf
+      - ./srv/ssl:/etc/nginx/ssl
       - ./data/web/static:/data/web/static
       - ./data/web/media:/data/web/media
     depends_on:

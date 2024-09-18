@@ -4,19 +4,26 @@ from pythonjsonlogger import jsonlogger
 from kombu import Exchange, Queue
 from celery.schedules import crontab
 from datetime import datetime
+
+import decouple
+import dj_database_url
+from django.core.management.utils import get_random_secret_key
 from django.utils.translation import gettext_lazy as _
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "data" / "web"
 
-SECRET_KEY = "django-insecure-8gw&=e(wa%vxaye11h7mg2v1oaxee5ykw5kxh=a-urt$6j*0i)"
+# Secret Key
+SECRET_KEY = decouple.config("SECRET_KEY", default=get_random_secret_key())
+
+# Debug
+DEBUG = decouple.config("DEBUG", default=False, cast=bool)
 
 SITE_NAME = _("Reader Manager")
 
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 
-DEBUG = True
 ALLOWED_HOSTS = ["*"]
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
@@ -25,25 +32,24 @@ SESSION_SAVE_EVERY_REQUEST = True
 
 
 # region: MQTT Settings
-MQTT_BROKER_URL = os.environ.get("MQTT_BROKER_URL", "localhost")
-MQTT_BROKER_PORT = int(os.environ.get("MQTT_BROKER_PORT", 1883))
-MQTT_KEEPALIVE_INTERVAL = int(os.environ.get("MQTT_KEEPALIVE_INTERVAL", 60))
-MQTT_USERNAME = os.environ.get("MQTT_USERNAME", "")
-MQTT_PASSWORD = os.environ.get("MQTT_PASSWORD", "")
-MQTT_USE_TLS = bool(int(os.environ.get("MQTT_USE_TLS", "0")))
-MQTT_TLS_CA_CERTS = os.environ.get("MQTT_TLS_CA_CERTS", "")
+MQTT_BROKER_URL = decouple.config("MQTT_BROKER_URL", default="localhost")
+MQTT_BROKER_PORT = decouple.config("MQTT_BROKER_PORT", default="1883")
+MQTT_KEEPALIVE_INTERVAL = decouple.config("MQTT_KEEPALIVE_INTERVAL", default="60")
+MQTT_USERNAME = decouple.config("MQTT_USERNAME", default="")
+MQTT_PASSWORD = decouple.config("MQTT_PASSWORD", default="")
+MQTT_USE_TLS = bool(int(decouple.config("MQTT_USE_TLS", default="0"))) 
+MQTT_TLS_CA_CERTS = decouple.config("MQTT_TLS_CA_CERTS", default="")
 # endregion
 
 # region: DB
+DATABASE_URL = decouple.config("DATABASE_URL", default="")
+
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("POSTGRES_DB"),
-        "USER": os.getenv("POSTGRES_USER"),
-        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
-        "HOST": "db",
-        "PORT": "5432",
-    }
+    "default": dj_database_url.parse(
+        DATABASE_URL,
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
 }
 # endregion
 
@@ -88,7 +94,7 @@ LOGGING = {
             "class": "logging.FileHandler",
             "filename": LOG_FILE_PATH,
             "formatter": "verbose",
-        }
+        },
     },
     "loggers": {
         "django": {
@@ -113,8 +119,8 @@ CELERY_BEAT_SCHEDULE = {
     },
 }
 
-CELERY_BROKER_URL = "amqp://user:password@rabbitmq:5672//"
-CELERY_RESULT_BACKEND = "rpc://"
+CELERY_BROKER_URL = decouple.config("CELERY_BROKER_URL", default="")
+CELERY_RESULT_BACKEND = decouple.config("CELERY_RESULT_BACKEND", default="")
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
@@ -170,7 +176,7 @@ INSTALLED_APPS = [
     "crispy_forms",
     "crispy_bootstrap5",
     "apps.readers",
-    "apps.smartreader"
+    "apps.smartreader",
 ]
 
 
@@ -184,6 +190,23 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+if DEBUG:
+    INTERNAL_IPS = [
+        # ...
+        "127.0.0.1",
+        "172.20.0.1",
+        "localhost",
+        # ...
+    ]
+    SHOW_TOOLBAR_CALLBACK = True
+
+    # Enable debug toolbar only if DEBUG=True
+    INSTALLED_APPS = INSTALLED_APPS + ["debug_toolbar"]
+    MIDDLEWARE = [
+        "debug_toolbar.middleware.DebugToolbarMiddleware",
+    ] + MIDDLEWARE
+
 
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
@@ -225,17 +248,23 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # region: Internationalization
-LANGUAGE_CODE = "pt-br"
+LANGUAGE_CODE = decouple.config("LANGUAGE_CODE", default="en-us")
+
 LANGUAGES = (
     ("en-us", _("English")),
     ("pt-br", _("Portuguese")),
 )
+
 LOCALE_PATHS = [
     BASE_DIR / "locale",
 ]
-TIME_ZONE = "UTC"
+
+TIME_ZONE = decouple.config("TIME_ZONE", default="UTC")  # 'UTC'
+
 USE_I18N = True
+
 USE_L10N = True
+
 USE_TZ = True
 # endregion
 

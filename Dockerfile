@@ -19,5 +19,9 @@ COPY . /app/
 # Set the working directory in the container
 WORKDIR /app
 
-# Install dependencies
+# pip
 RUN pip install --upgrade pip && pip install -q -r requirements.txt
+
+# run commands for build-time
+RUN chmod +x /app/commands.sh
+CMD ["/app/commands.sh"]
